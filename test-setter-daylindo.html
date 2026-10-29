@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Test de recrutement – Setter B2B Daylindo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #F4F6F7;
+    --surface: #FFFFFF;
+    --ink: #1C2536;
+    --text: #2F3A4B;
+    --muted: #5E6A7C;
+    --line: #D3DAE1;
+    --mark: #F2B705;
+    --mark-ink: #1C2536;
+    --note-bg: #FFF6D6;
+    --note-line: #E3A900;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #131A26;
+      --surface: #1B2433;
+      --ink: #F1F3F6;
+      --text: #D2D8E1;
+      --muted: #9AA5B5;
+      --line: #2E3A4D;
+      --mark: #F2B705;
+      --mark-ink: #131A26;
+      --note-bg: #2A2614;
+      --note-line: #C99A06;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #131A26; --surface: #1B2433; --ink: #F1F3F6; --text: #D2D8E1;
+    --muted: #9AA5B5; --line: #2E3A4D; --mark: #F2B705; --mark-ink: #131A26;
+    --note-bg: #2A2614; --note-line: #C99A06;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Public Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem; }
+
+  /* En-tête : bande de marquage au sol */
+  header { background: var(--ink); color: var(--bg); padding: 3.5rem 0 2.75rem; position: relative; }
+  header::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -14px; height: 14px;
+    background: repeating-linear-gradient(-45deg, var(--mark) 0 14px, var(--ink) 14px 28px);
+  }
+  .brand { font-family: "Archivo", sans-serif; font-weight: 600; font-size: 0.95rem; color: var(--mark); margin: 0 0 1.25rem; }
+  h1 {
+    font-family: "Archivo", sans-serif; font-stretch: 78%; font-weight: 800;
+    font-size: clamp(2.4rem, 8vw, 3.6rem); line-height: 1.02; margin: 0 0 1.25rem; letter-spacing: -0.01em;
+  }
+  header p { margin: 0; max-width: 36rem; opacity: 0.88; }
+
+  main { padding: 3.5rem 0 4rem; }
+  section { margin: 0 0 3.25rem; }
+  h2 {
+    font-family: "Archivo", sans-serif; font-stretch: 85%; font-weight: 800;
+    font-size: 1.75rem; line-height: 1.15; color: var(--ink); margin: 0 0 1rem;
+  }
+  h3 { font-family: "Archivo", sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--ink); margin: 2rem 0 0.5rem; }
+  p { margin: 0 0 1rem; }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; margin: 0 0 1rem; }
+  li { margin-bottom: 0.45rem; }
+
+  /* Déroulé en 3 étapes */
+  .steps { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 0.75rem; counter-reset: step; }
+  .steps li {
+    counter-increment: step; margin: 0; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 6px; padding: 1rem 1rem 1rem 4rem; position: relative;
+  }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 1rem; top: 0.85rem;
+    width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--mark); color: var(--mark-ink);
+    font-family: "Archivo", sans-serif; font-weight: 800; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps .time { display: block; color: var(--muted); font-size: 0.93rem; }
+
+  .note {
+    background: var(--note-bg); border-left: 4px solid var(--note-line);
+    padding: 1rem 1.15rem; margin: 1.25rem 0; border-radius: 0 6px 6px 0;
+  }
+  .note p:last-child { margin-bottom: 0; }
+
+  .persona { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1.25rem 1.25rem 0.5rem; margin-top: 0.75rem; }
+  .persona p:first-child { margin-top: 0; }
+
+  .figures { display: grid; gap: 0.75rem; margin: 0.75rem 0 1rem; }
+  .figures div { border-top: 2px solid var(--ink); padding-top: 0.6rem; }
+
+  /* Exercice */
+  .tasks { padding-left: 0; list-style: none; counter-reset: task; margin: 1.25rem 0 0; }
+  .tasks > li { counter-increment: task; position: relative; padding: 0 0 1.4rem 2.6rem; margin: 0; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
+  .tasks > li:last-child { border-bottom: 0; margin-bottom: 0; }
+  .tasks > li::before {
+    content: counter(task); position: absolute; left: 0; top: 0;
+    font-family: "Archivo", sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1.1; color: var(--ink);
+  }
+  .tasks h3 { margin: 0 0 0.35rem; }
+  .tasks ol { margin: 0.5rem 0 0; padding-left: 1.3rem; }
+  .tasks ol li { font-style: italic; }
+
+  footer { border-top: 1px solid var(--line); padding: 1.5rem 0 2.5rem; color: var(--muted); font-size: 0.92rem; }
+
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--mark); outline-offset: 2px; }
+
+  @media (min-width: 40rem) {
+    .figures { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  }
+  @media print {
+    header { background: none; color: #000; padding-top: 0; }
+    header::after { display: none; }
+    .brand { color: #000; }
+    body { background: #fff; color: #000; }
+    section { break-inside: avoid-page; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="brand">Daylindo</p>
+    <h1>Test de recrutement : setter B2B</h1>
+    <p>Merci pour votre candidature. Ce test nous permet de voir comment vous abordez un appel de prospection auprès d’un décideur que vous ne connaissez pas, sur une solution que vous découvrez.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section aria-labelledby="deroule">
+    <h2 id="deroule">Le déroulé</h2>
+    <p>Nous ne cherchons pas une connaissance parfaite de Daylindo. Nous regardons votre capacité à comprendre vite, à expliquer simplement, à poser des questions et à obtenir un rendez-vous.</p>
+    <ol class="steps">
+      <li><strong>Lire le kit de préparation</strong> ci-dessous.<span class="time">15 minutes environ</span></li>
+      <li><strong>Réaliser l’exercice écrit et vocal</strong>, à rendre sous 48 heures.<span class="time">30 à 40 minutes de travail</span></li>
+      <li><strong>Passer un jeu de rôle téléphonique en direct</strong>, sur la base du même kit.<span class="time">20 minutes</span></li>
+    </ol>
+    <p>Il n’y a pas de piège. Si un point du kit vous semble flou, notez-le dans votre rendu : savoir repérer ce qu’on ne comprend pas fait partie du métier.</p>
+  </section>
+
+  <section aria-labelledby="kit">
+    <h2 id="kit">Kit de préparation</h2>
+
+    <h3>Qui est Daylindo</h3>
+    <p>Daylindo est une entreprise française qui édite une plateforme de gestion des compétences opérationnelles. Elle s’adresse aux entreprises dont les salariés apprennent leur métier directement sur le terrain : entrepôts, magasins, sites industriels, réseaux d’agences.</p>
+    <div class="note">
+      <p><strong>Point important : Daylindo ne forme pas les salariés.</strong> Ce sont les tuteurs de l’entreprise, sur le terrain, qui forment les nouveaux arrivants. Daylindo aide l’entreprise à structurer cette formation au poste, à la suivre et à la faire financer.</p>
+    </div>
+
+    <h3>Ce que fait Daylindo, concrètement</h3>
+    <ul>
+      <li><strong>Structurer</strong> : définir pour chaque métier ce qu’un nouvel arrivant doit savoir faire, et dans quel ordre.</li>
+      <li><strong>Outiller les tuteurs</strong> : leur donner un parcours clair et des grilles d’évaluation simples pour valider les gestes au poste.</li>
+      <li><strong>Suivre</strong> : savoir à tout moment qui est autonome, sur quoi, et qui ne l’est pas encore.</li>
+      <li><strong>Faire financer</strong> : en France, la formation réalisée au poste de travail peut être financée (dispositif appelé AFEST, pris en charge par les OPCO, les organismes qui financent la formation des salariés). Daylindo accompagne l’entreprise pour obtenir ce financement.</li>
+    </ul>
+
+    <h3>Le prospect que vous allez appeler</h3>
+    <div class="persona">
+      <p>Pour ce test, vous appelez une <strong>DRH d’un groupe logistique</strong> : environ 800 salariés, 5 entrepôts, et près de 150 préparateurs de commandes et caristes recrutés chaque année.</p>
+      <p>Son quotidien :</p>
+      <ul>
+        <li>Le turnover est élevé, et une partie des nouveaux part dans les premières semaines.</li>
+        <li>Chaque vague de recrutement repart de zéro : chaque entrepôt forme à sa façon, sans référentiel commun.</li>
+        <li>Les tuteurs passent beaucoup de temps à former, sans que ce temps soit visible ni compté.</li>
+        <li>Les erreurs des nouveaux en poste coûtent cher : erreurs de préparation, casse, retards.</li>
+      </ul>
+      <p>Elle ne vous attend pas, elle est très sollicitée, et elle ne connaît pas Daylindo.</p>
+    </div>
+
+    <h3>Quelques repères à utiliser</h3>
+    <div class="figures">
+      <div><p>Un DRH d’un groupe de plus de 5 000 salariés estime à <strong>30 heures par an et par collaborateur</strong> la formation informelle réalisée sur le terrain, sans être tracée.</p></div>
+      <div><p>Chez un client du secteur de l’intérim, des parcours structurés par métier avec des tuteurs outillés ont permis de <strong>réduire de moitié les départs précoces</strong> et de <strong>diviser par deux le temps pour devenir autonome</strong>.</p></div>
+    </div>
+
+    <h3>L’objectif de l’appel</h3>
+    <p>Vous ne devez pas vendre Daylindo au téléphone. Votre objectif est d’<strong>obtenir un rendez-vous de 30 minutes</strong> entre la DRH et un expert Daylindo, si elle a bien le problème décrit.</p>
+  </section>
+
+  <section aria-labelledby="exercice">
+    <h2 id="exercice">Exercice écrit et vocal</h2>
+    <p>Répondez avec vos propres mots. Nous ne notons pas le style, mais la clarté et la logique de l’appel.</p>
+    <ol class="tasks">
+      <li>
+        <h3>Expliquer Daylindo</h3>
+        <p>En 2 phrases maximum, expliquez à la DRH ce que fait Daylindo, comme si elle n’avait jamais entendu parler de formation au poste. Pas de jargon : si vous utilisez un terme technique, expliquez-le.</p>
+      </li>
+      <li>
+        <h3>Les 20 premières secondes</h3>
+        <p>Écrivez mot pour mot ce que vous dites dès que la DRH décroche. Votre but : qu’elle ait envie de vous laisser continuer.</p>
+      </li>
+      <li>
+        <h3>Vos questions</h3>
+        <p>Listez 5 questions que vous poseriez pour savoir si elle a vraiment le problème décrit dans le kit. Pour chacune, indiquez en une ligne ce que vous cherchez à savoir.</p>
+      </li>
+      <li>
+        <h3>Trois objections</h3>
+        <p>Écrivez ce que vous répondez à chacune :</p>
+        <ol>
+          <li>« On a déjà un service formation qui s’occupe de ça. »</li>
+          <li>« Envoyez-moi un mail, je regarderai. »</li>
+          <li>« Ce n’est pas une priorité pour nous en ce moment. »</li>
+        </ol>
+      </li>
+      <li>
+        <h3>Message vocal</h3>
+        <p>Enregistrez un message de 45 secondes maximum, comme si vous tombiez sur le répondeur de la DRH. Un enregistrement fait avec votre téléphone suffit, en une seule prise, sans montage.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="rendu">
+    <h2 id="rendu">Rendu et suite</h2>
+    <ul>
+      <li><strong>Format</strong> : vos réponses aux questions 1 à 4 dans un document texte, et votre message vocal en fichier audio.</li>
+      <li><strong>Délai</strong> : 48 heures après réception de ce test.</li>
+      <li><strong>Envoi</strong> : à l’adresse indiquée dans le mail qui accompagne ce lien.</li>
+    </ul>
+    <p>Après votre rendu, nous vous proposerons un <strong>jeu de rôle téléphonique de 20 minutes</strong>. Vous appellerez la DRH du kit, jouée par un membre de l’équipe Daylindo, puis nous prendrons quelques minutes pour en parler ensemble. Gardez ce kit sous la main : il suffit pour vous préparer.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">Daylindo – document réservé aux candidat·es au poste de setter B2B.</div>
+</footer>
+
+</body>
+</html>
