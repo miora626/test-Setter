@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Formation Daylindo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A3A; --paper:#F4F6F8; --card:#FFFFFF; --steel:#5B6B7F; --line:#D5DBE2;
+  --signal:#F2B705; --ok:#2E8B57; --ok-bg:#E3F3EA; --ko:#C8463D; --ko-bg:#FBE7E5; --soft:#E9EDF2;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--ink:#E8EDF3;--paper:#121A24;--card:#1B2633;--steel:#9AA8B8;--line:#2C3A4A;--ok:#5CC48A;--ok-bg:#163326;--ko:#F07A70;--ko-bg:#3A1C1A;--soft:#223040;color-scheme:dark}
+}
+:root[data-theme="dark"]{--ink:#E8EDF3;--paper:#121A24;--card:#1B2633;--steel:#9AA8B8;--line:#2C3A4A;--ok:#5CC48A;--ok-bg:#163326;--ko:#F07A70;--ko-bg:#3A1C1A;--soft:#223040;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;line-height:1.1;margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.wrap{max-width:880px;margin:0 auto;padding:18px 18px 48px}
+.stripe{height:8px;border-radius:4px;background:repeating-linear-gradient(-45deg,var(--signal) 0 14px,var(--ink) 14px 28px)}
+header{padding:18px 0 8px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-top:14px}
+header h1{font-size:clamp(32px,6vw,50px)}
+header p{margin:6px 0 0;color:var(--steel);max-width:60ch}
+.xp{min-width:220px;flex:0 1 260px}
+.xp .lvl{display:flex;justify-content:space-between;font-family:"Barlow Condensed",sans-serif;font-size:20px}
+.xp .lvl span:last-child{color:var(--steel)}
+.xpbar{height:12px;border-radius:6px;background:var(--soft);overflow:hidden;margin-top:6px;border:1px solid var(--line)}
+.xpbar span{display:block;height:100%;background:var(--signal);transition:width .6s cubic-bezier(.3,.8,.3,1)}
+.xp small{color:var(--steel)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(30px);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-weight:600;opacity:0;transition:.3s;z-index:20;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* map */
+.review{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:18px 0 6px;padding:14px 16px;border-radius:14px;background:var(--card);border:2px solid var(--signal)}
+.review b{font-family:"Barlow Condensed",sans-serif;font-size:21px}
+.review p{margin:2px 0 0;color:var(--steel)}
+.route{list-style:none;margin:16px 0 0;padding:0;position:relative}
+.route::before{content:"";position:absolute;left:27px;top:20px;bottom:20px;border-left:3px dashed var(--line)}
+.stop{position:relative;margin:0 0 10px}
+.stop button{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stop button:hover{border-color:var(--ink)}
+.num{width:30px;height:30px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--paper);border:3px solid var(--line);font-family:"Barlow Condensed",sans-serif;font-weight:700;position:relative;z-index:1}
+.stop.done .num{background:var(--ok);border-color:var(--ok);color:#fff}
+.stop.done .num.stamp{animation:stamp .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp{0%{transform:scale(2.2) rotate(-25deg);opacity:0}100%{transform:none;opacity:1}}
+.stop .t{flex:1;min-width:0}
+.stop .t b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:21px;line-height:1.15}
+.stop .t small{color:var(--steel)}
+.stop .tag{font-size:14px;color:var(--steel);white-space:nowrap}
+.stop.bonus button{border-style:dashed;border-color:var(--signal)}
+.cert{margin-top:20px;border:3px double var(--ok);border-radius:16px;padding:18px;text-align:center;display:none;background:var(--card)}
+.cert.show{display:block;animation:rise .4s ease}
+.cert h3{font-size:30px;color:var(--ok)}
+
+/* panels */
+.back-link{background:none;border:0;color:var(--steel);padding:6px 0;margin:10px 0;text-decoration:underline}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.panel h2{font-size:30px}
+.lead{color:var(--steel);margin:4px 0 16px}
+.meta{display:flex;justify-content:space-between;color:var(--steel);font-size:15px;margin-bottom:8px}
+.progress{height:6px;background:var(--soft);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.progress span{display:block;height:100%;background:var(--signal);transition:width .35s ease}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:2px solid var(--ink);background:var(--card);border-radius:10px;padding:10px 16px;font-weight:600}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.good{border-color:var(--ok);color:var(--ok)}
+.btn.again{border-color:var(--ko);color:var(--ko)}
+.btn:disabled{opacity:.4;cursor:default}
+.q{font-size:20px;font-weight:600;margin:0 0 14px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:12px;padding:12px 14px;transition:border-color .2s,background .2s}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--ko);background:var(--ko-bg);animation:shake .35s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.feedback{margin-top:14px;padding:14px 16px;border-radius:12px;display:none}
+.feedback.show{display:block;animation:rise .3s ease}
+.feedback.ok{background:var(--ok-bg)} .feedback.ko{background:var(--ko-bg)}
+.feedback b{display:block;margin-bottom:4px}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.next{margin-top:12px}
+.end{text-align:center;padding:20px 8px}
+.end .big{font-family:"Barlow Condensed",sans-serif;font-size:64px;font-weight:700}
+.end p{color:var(--steel)}
+.end .row{justify-content:center}
+
+/* story */
+.story{min-height:260px;border-radius:16px;background:var(--ink);color:var(--paper);padding:26px;display:flex;flex-direction:column;justify-content:center;gap:12px;animation:rise .35s ease}
+.story h3{font-size:clamp(28px,5vw,38px)}
+.story p{margin:0;font-size:19px;max-width:56ch;opacity:.92}
+.dots{display:flex;gap:6px;justify-content:center;margin:14px 0}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--signal)}
+
+/* flip */
+.flip{perspective:1200px;margin:6px 0 16px}
+.flip-inner{position:relative;min-height:250px;transition:transform .6s cubic-bezier(.3,.7,.2,1);transform-style:preserve-3d}
+.flip.on .flip-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:center;border:2px solid var(--ink)}
+.front{background:var(--ink);color:var(--paper);text-align:center;align-items:center}
+.front .term{font-family:"Barlow Condensed",sans-serif;font-size:clamp(32px,7vw,50px);font-weight:700}
+.front .hint{opacity:.7;margin-top:10px;font-size:15px}
+.back{background:var(--card);transform:rotateY(180deg);gap:12px;overflow:auto}
+.back p{margin:0}
+.say{padding:12px 14px;border-left:5px solid var(--signal);background:var(--soft);border-radius:0 10px 10px 0}
+.say i{font-style:normal;color:var(--steel);display:block;font-size:14px}
+.flip-btn{width:100%;background:none;border:0;padding:0;text-align:inherit}
+
+/* sorting */
+.sort-card{font-size:21px;font-weight:600;text-align:center;padding:28px 18px;border:2px solid var(--ink);border-radius:16px;margin-bottom:14px;background:var(--card)}
+.sort-card.go-left{animation:goL .35s forwards} .sort-card.go-right{animation:goR .35s forwards}
+@keyframes goL{to{transform:translateX(-60px) rotate(-6deg);opacity:0}}
+@keyframes goR{to{transform:translateX(60px) rotate(6deg);opacity:0}}
+.sort-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* matching */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match .col{display:grid;gap:8px;align-content:start}
+.tile{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;min-height:56px;transition:.2s}
+.tile.sel{border-color:var(--signal);background:var(--soft)}
+.tile.paired{border-color:var(--ok);background:var(--ok-bg);opacity:.7}
+.tile.nope{animation:shake .35s;border-color:var(--ko)}
+.tile:disabled{cursor:default}
+
+/* order */
+.slots{display:grid;gap:8px;margin-bottom:14px}
+.slot{border:2px dashed var(--line);border-radius:12px;padding:10px 12px;min-height:48px;color:var(--steel);display:flex;gap:10px;align-items:center}
+.slot.filled{border-style:solid;border-color:var(--ok);color:var(--ink);background:var(--ok-bg);animation:rise .25s}
+.slot b{font-family:"Barlow Condensed",sans-serif;font-size:20px}
+
+/* timer */
+.timer{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin-bottom:14px}
+.timer span{display:block;height:100%;background:var(--ko);width:100%}
+
+/* scene */
+.scene{background:var(--soft);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.scene .who{font-family:"Barlow Condensed",sans-serif;font-size:18px;color:var(--steel)}
+.scene .line{font-size:20px;margin-top:4px}
+
+/* chat */
+.persona-pick{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:12px}
+.persona-pick button{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:14px}
+.persona-pick button:hover{border-color:var(--ink)}
+.persona-pick b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:21px}
+.persona-pick small{color:var(--steel)}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto;padding:4px 2px 8px;margin-bottom:10px}
+.msg{max-width:82%;padding:10px 14px;border-radius:14px;animation:rise .25s}
+.msg.them{background:var(--soft);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:var(--ink);color:var(--paper);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.note{align-self:center;background:none;color:var(--steel);font-size:15px}
+.compose{display:flex;gap:8px;align-items:flex-end}
+.compose textarea{flex:1;min-height:52px;max-height:140px;resize:vertical;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card)}
+.icon-btn{border:2px solid var(--line);background:var(--card);border-radius:12px;width:52px;height:52px;flex:none;font-size:20px}
+.icon-btn.live{border-color:var(--ko);color:var(--ko)}
+.score-list{display:grid;gap:8px;margin:12px 0}
+.score-item{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--soft)}
+.pts{font-family:"Barlow Condensed",sans-serif;font-size:22px;font-weight:700;min-width:38px}
+.muted{color:var(--steel)}
+footer{margin-top:26px;color:var(--steel);font-size:14px}
+footer button{background:none;border:0;text-decoration:underline;color:var(--steel);padding:0}
+@media (max-width:600px){.panel{padding:16px}.flip-inner{min-height:300px}.sort-btns{grid-template-columns:1fr}.match{grid-template-columns:1fr}.msg{max-width:92%}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stripe" aria-hidden="true"></div>
+    <div class="top">
+      <div>
+        <h1>Formation Daylindo</h1>
+        <p>Six missions courtes pour comprendre Daylindo, nos motions, nos personas et nos mots. Chaque bonne réponse rapporte des points, chaque mission réussie un tampon. Les six missions validées ouvrent la formation de campagne.</p>
+      </div>
+      <div class="xp" aria-live="polite">
+        <div class="lvl"><span id="lvlName"></span><span id="xpNum"></span></div>
+        <div class="xpbar"><span id="xpBar"></span></div>
+        <small id="lvlNext"></small>
+      </div>
+    </div>
+  </header>
+  <main id="main"></main>
+  <footer>Ta progression est gardée sur cet appareil. <button id="reset" type="button">Recommencer à zéro</button></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+/* =============== DATA =============== */
+const STORY = [
+ {h:"Le problème", p:"Dans les entreprises que tu appelles, un nouveau apprend son métier en binôme, à côté d’un collègue expérimenté. Personne ne sait vraiment quand il est prêt à partir seul."},
+ {h:"Ce que fait Daylindo", p:"Nous aidons les entreprises à organiser la transmission des savoir-faire au poste, et à savoir, avec des preuves, qui sait vraiment faire quoi."},
+ {h:"Qui transmet ?", p:"Les experts de l’entreprise, ses formateurs terrain. Daylindo ne forme pas : on organise, on outille, on garde la preuve et, en France, on aide à faire financer."},
+ {h:"Ta phrase à retenir", p:"« Chez Daylindo, nous aidons les entreprises à organiser la transmission des savoir-faire au poste. »"}
+];
+const TF = [
+ {c:"Daylindo forme les techniciens de ses clients.", o:["Vrai","Faux"], a:1, e:"Faux : ce sont les experts de l’entreprise qui transmettent. Daylindo organise, outille et garde la preuve."},
+ {c:"Ce sont les formateurs terrain du client qui transmettent le métier.", o:["Vrai","Faux"], a:0, e:"Vrai : ce sont ses techniciens expérimentés."},
+ {c:"Au premier appel, on parle du financement par l’OPCO pour accrocher le prospect.", o:["Vrai","Faux"], a:1, e:"Faux : pas de financement, ni d’AFEST, ni de plateforme au premier contact. On pose une question et on écoute."},
+ {c:"Pour rassurer, on peut citer nos clients par leur nom.", o:["Vrai","Faux"], a:1, e:"Faux : on utilise un cas sans nom, par exemple « nous travaillons avec des réseaux de techniciens terrain »."},
+ {c:"Une preuve opposable peut être montrée à un auditeur ou à un client.", o:["Vrai","Faux"], a:0, e:"Vrai : c’est une preuve fondée sur une observation réelle, pas une simple déclaration."}
+];
+const MOTIONS = [
+ {w:"Une agence d’intérim veut des intérimaires vite opérationnels chez ses clients", m:1, e:"Intégration (A1) : motion 1."},
+ {w:"Un ascensoriste veut savoir quel technicien peut intervenir seul", m:2, e:"Savoir-faire critique (C) : motion 2."},
+ {w:"Un camping recrute 80 saisonniers chaque été", m:1, e:"Fort turnover (A2) : motion 1."},
+ {w:"Une responsable QHSE doit prouver une habilitation le jour d’un audit", m:2, e:"Preuve de compétence (C) : motion 2."},
+ {w:"Un réseau d’agences d’assurance intègre ses nouveaux conseillers", m:1, e:"Agences multi-sites (B1) : motion 1."},
+ {w:"Une direction commerciale veut évaluer ses commerciaux sur le terrain", m:2, e:"Force de vente (B2) : motion 2."},
+ {w:"On met en avant l’intégration et son financement", m:1, e:"C’est l’argument de la motion 1."},
+ {w:"On met en avant le « prêt à partir seul » et la preuve", m:2, e:"C’est l’argument de la motion 2."}
+];
+const PERSONAS = [
+ {p:"Opérationnel (directeur d’agence, d’exploitation)", f:"Découvrir au planning qu’un nouveau n’est pas prêt", q:"« Comment validez-vous qu’un technicien est prêt à intervenir seul ? »"},
+ {p:"DRH", f:"Voir partir les recrues après 3 semaines", q:"« Comment suivez-vous les premiers mois d’une recrue au poste ? »"},
+ {p:"Direction commerciale d’agence d’intérim", f:"Perdre un client parce que les intérimaires ne tiennent pas le poste", q:"« Comment se passe la montée en compétence de vos intérimaires chez vos clients ? »"},
+ {p:"Direction formation", f:"Une formation qui s’arrête en salle, sans savoir si le geste est maîtrisé", q:"« Après une formation, comment savez-vous qu’il est prêt à partir seul ? »"},
+ {p:"QHSE", f:"Ne pas retrouver la preuve d’habilitation le jour d’un audit", q:"« Comment retrouvez-vous cette preuve aujourd’hui ? »"},
+ {p:"Direction commerciale (force de vente)", f:"Des commerciaux supposés prêts qui ne le sont pas", q:"« Quand un nouveau commercial arrive, comment savez-vous qu’il est prêt ? »"}
+];
+const SEGMENTS = [
+ {c:"Une chaîne de 40 hôtels recrute 300 saisonniers chaque été. Qui vit ce problème, et dans quel segment ?", o:["A2, la DRH","B2, la direction commerciale","C, la QHSE"], a:0, e:"Employeur direct à fort turnover saisonnier : segment A2, et c’est la DRH qui porte le sujet."},
+ {c:"Un réseau de 80 agences d’intérim veut que ses intérimaires soient vite opérationnels chez ses clients.", o:["B1, la DRH","A1, la direction commerciale","A2, la DRH"], a:1, e:"A1 : pour une agence d’intérim, c’est un argument commercial pour gagner des clients."},
+ {c:"Un ascensoriste ne sait pas quel technicien peut intervenir seul sur un vieux modèle.", o:["C, d’abord les opérationnels","A2, la DRH","B1, la formation"], a:0, e:"Savoir-faire critique, segment C. On commence par ceux qui vivent la douleur."},
+ {c:"Un laboratoire veut savoir si ses 120 délégués médicaux maîtrisent le nouveau discours produit.", o:["C, la direction formation","B2, la direction commerciale ou le sales enablement","A2, la DRH"], a:1, e:"Force de vente terrain : segment B2."},
+ {c:"Un réseau de 150 agences d’assurance veut homogénéiser le niveau de ses conseillers.", o:["B1, la DRH","B2, le chef des ventes","A1, la direction commerciale"], a:0, e:"Réseau d’agences multi-sites : B1. La DRH décide, la formation conseille."},
+ {c:"Le jour d’un audit, un énergéticien cherche la preuve qu’un technicien était habilité.", o:["C, la QHSE","A2, la DRH","B2, la direction commerciale"], a:0, e:"Segment C, et c’est la QHSE qui vit ce moment de l’audit."},
+ {c:"Un groupe agroalimentaire : ses opérateurs de conditionnement partent au bout de 3 semaines.", o:["C, les techniciens","A2, la DRH","B2, la force de vente"], a:1, e:"Opérateurs de conditionnement, fort turnover : A2. Ses techniciens de maintenance relèveraient de C."},
+ {c:"Une entreprise déjà cliente de Daylindo apparaît dans ta liste d’appels.", o:["Je l’appelle normalement","Je ne l’appelle pas et je le signale","J’appelle et je cite notre client"], a:1, e:"On n’appelle jamais un client existant en prospection. La liste des clients est dans ton kit."}
+];
+const CARDS = [
+ {t:"Formateur terrain", d:"Le collaborateur expérimenté du client qui transmet son métier aux nouveaux. C’est lui qui forme, pas Daylindo.", s:"« Vos techniciens expérimentés, ceux qui montrent aux nouveaux. »"},
+ {t:"Prêt à partir seul", d:"Le moment où un nouveau peut intervenir sans son binôme. C’est la question centrale de nos appels.", s:"« Comment validez-vous qu’un technicien est prêt à intervenir seul ? »"},
+ {t:"Binôme", d:"Le nouveau travaille à côté d’un expert pour apprendre. Souvent sans trace écrite.", s:"« Combien de temps un nouveau reste-t-il en binôme ? »"},
+ {t:"Preuves opposables", d:"Des preuves de compétence fondées sur une observation réelle, qu’on peut montrer à un auditeur, un client ou une autorité.", s:"« Pouvoir prouver, et pas seulement supposer, qu’une personne maîtrise son poste. »"},
+ {t:"Habilitation", d:"L’autorisation officielle de faire une intervention précise. Elle doit pouvoir être prouvée le jour d’un audit.", s:"« Qui vérifie qu’il est habilité pour cette intervention ? »"},
+ {t:"Cartographie des compétences", d:"La vue d’ensemble de qui maîtrise quoi, par personne, équipe ou site.", s:"« Savoir qui sait faire quoi, en un coup d’œil. »"},
+ {t:"Référentiel", d:"La liste claire des gestes et compétences attendus pour un métier, avec les niveaux.", s:"« La liste de ce qu’un technicien doit savoir faire. »"},
+ {t:"Turnover précoce", d:"Les départs dans les premières semaines après l’arrivée.", s:"« Les gens qui partent après 2 ou 3 semaines. »"},
+ {t:"Motion 1 : Intégration", d:"Segments A1, A2, B1. On organise l’intégration des nouveaux au poste et on aide à la faire financer (France).", s:"Intérim, employeurs à fort turnover, réseaux d’agences."},
+ {t:"Motion 2 : Compétences", d:"Segments B2 et C. La plateforme permet de savoir et de prouver qui sait faire quoi, en continu.", s:"Forces de vente terrain, métiers à savoir-faire critiques."},
+ {t:"AFEST", d:"Action de Formation En Situation de Travail : l’apprentissage au poste reconnu comme une formation, donc finançable s’il est bien organisé.", s:"À connaître, mais à ne pas dire au premier contact."},
+ {t:"OPCO", d:"L’organisme qui finance la formation pour le secteur de l’entreprise. Il en existe 11.", s:"À connaître : c’est l’expert qui en parle au rendez-vous."},
+ {t:"QHSE", d:"Qualité, hygiène, sécurité, environnement. Ce persona vit le problème le jour d’un audit ou après un incident.", s:"« Le jour d’un audit, c’est facile de retrouver la preuve ? »"},
+ {t:"GEPP", d:"Gestion des emplois et des parcours professionnels. Obligatoire à négocier dans les entreprises de 300 salariés et plus.", s:"« Votre démarche pour anticiper les compétences dont vous aurez besoin. »"}
+];
+const WORDS = [
+ {w:"« Un échange de 20 minutes avec un expert de notre équipe »", ok:true, e:"C’est la formule de la campagne."},
+ {w:"« Daylindo forme vos équipes »", ok:false, e:"Faux : ce sont les experts de l’entreprise qui transmettent."},
+ {w:"« Prêt à intervenir seul »", ok:true, e:"Le mot du terrain, celui que le prospect vit."},
+ {w:"« Notre plateforme »", ok:false, e:"Mot produit : on parle du quotidien du prospect, pas de notre outil."},
+ {w:"« Binôme »", ok:true, e:"Un mot du terrain que tout le monde comprend."},
+ {w:"« C’est financé à 100 % »", ok:false, e:"Promesse impossible, et pas de financement au premier contact."},
+ {w:"« Habilitation, preuve, audit »", ok:true, e:"Les mots de la QHSE."},
+ {w:"« Je vous propose une démo »", ok:false, e:"On propose un échange avec un expert, jamais une démo."},
+ {w:"« Technicien expérimenté »", ok:true, e:"Plus parlant que « formateur » pour un opérationnel."},
+ {w:"« On certifie vos techniciens »", ok:false, e:"Daylindo ne certifie pas : on aide à garder des preuves."},
+ {w:"« Planning, intervention »", ok:true, e:"Le vocabulaire des opérationnels."},
+ {w:"« Une solution clé en main »", ok:false, e:"Vocabulaire commercial à éviter."}
+];
+const STEPS = [
+ {r:"Préparer", d:"Relire la ligne du contact et le message de Carole"},
+ {r:"Ouvrir", d:"Qui tu es, le lien avec Carole, une seule question"},
+ {r:"Questionner et se taire", d:"La question du persona, puis écouter et relancer"},
+ {r:"Proposer l’échange", d:"Reformuler sa difficulté et proposer 20 minutes avec un expert"},
+ {r:"Réserver", d:"Choisir un créneau ensemble dans le Calendly de Gerardo"}
+];
+const LINES = [
+ {r:"« Bonjour Monsieur Lefèvre, Anita de Daylindo. Ma collègue Carole Laffont vous a écrit sur LinkedIn au sujet de vos techniciens terrain. »"},
+ {r:"« Je vous appelle pour une seule question : comment validez-vous qu’un technicien est prêt à intervenir seul ? »"},
+ {r:"« C’est-à-dire ? Ça se passe comment, concrètement ? »"},
+ {r:"« Ce que vous décrivez, c’est le sujet sur lequel nous travaillons. Ça vaudrait la peine d’en parler 20 minutes avec un expert. »"},
+ {r:"« Je regarde ses disponibilités : jeudi 14 h ou 16 h ? Je réserve à votre nom. »"}
+];
+const SIM = [
+ {who:"Le moment de l’ouverture", line:"Le directeur d’agence décroche : « Allô ? »", o:["« Bonjour, je vous appelle pour vous présenter notre plateforme de gestion des compétences. »","« Bonjour Monsieur Lefèvre, Anita de Daylindo. Ma collègue Carole Laffont vous a écrit sur LinkedIn au sujet de vos techniciens terrain. Je vous appelle pour une seule question. »","« Bonjour, avez-vous bien reçu le message de Carole ? »"], a:1, e:"Qui tu es, le lien avec le message de Carole, et une seule question. Jamais « avez-vous reçu… »."},
+ {who:"Opérationnel", line:"« Oui, je vous écoute. »", o:["« Aujourd’hui, comment validez-vous qu’un technicien est prêt à intervenir seul ? »","« Avez-vous un logiciel pour suivre les compétences ? »","« Saviez-vous que l’AFEST permet de financer la formation au poste ? »"], a:0, e:"La question du persona opérationnel. Ensuite, tu te tais et tu écoutes."},
+ {who:"Opérationnel", line:"« On les met en binôme quelques semaines, et quand le chef d’équipe pense que c’est bon, ils partent seuls. »", o:["« Très bien, merci, bonne journée. »","« D’accord. Et quand le technicien qui sait est absent, vous faites comment ? »","« Notre plateforme règle exactement ça. »"], a:1, e:"Tu creuses avec une question ouverte, pour qu’il décrive sa difficulté avec ses mots."},
+ {who:"Opérationnel", line:"« Justement, c’est là que ça coince. Parfois on découvre au planning qu’un seul gars sait faire l’intervention. »", o:["« Ce que vous décrivez, c’est le sujet sur lequel nous travaillons chez Daylindo. Ça vaudrait la peine d’en parler 20 minutes avec un expert de notre équipe. Plutôt en début ou en fin de semaine ? »","« Je vous envoie une documentation et je vous rappelle dans un mois. »","« Quand êtes-vous disponible ? »"], a:0, e:"Il a décrit une difficulté : tu proposes l’échange avec un choix simple, puis tu réserves dans le Calendly."},
+ {who:"Responsable formation", line:"« Après une formation ? On fait une évaluation en salle, et voilà. »", o:["« Et sur le terrain, qui dit que le technicien est prêt : son manager, son binôme, vous ? »","« Ce n’est pas suffisant, vous devriez changer de méthode. »","« Parfait, alors vous n’avez pas besoin de nous. »"], a:0, e:"Ne juge pas. Tu creuses l’écart entre la salle et le terrain."},
+ {who:"QHSE", line:"« C’est géré, on a un fichier des habilitations. »", o:["« Un fichier Excel, ce n’est pas fiable. »","« Très bien. Le jour d’un audit, c’est facile de retrouver la preuve qu’un technicien était habilité ? »","« Je vous rappelle l’année prochaine alors. »"], a:1, e:"Une question sur le moment de l’audit, sans insister s’il confirme que tout va bien."},
+ {who:"Prospect pressé", line:"« Envoyez-moi un mail. »", o:["« D’accord, au revoir. »","« Bien sûr. Pour qu’il vous soit utile, c’est plutôt côté planning, formation ou habilitations ? »","« Je préfère vous expliquer maintenant, ça prend 10 minutes. »"], a:1, e:"Tu acceptes et tu poses une question qui garde la conversation ouverte."},
+ {who:"Prospect curieux", line:"« Vous êtes un organisme de formation ? »", o:["« Oui, on forme vos techniciens sur le terrain. »","« Non. Ce sont vos techniciens expérimentés qui transmettent ; nous aidons à organiser cette transmission et à savoir qui est prêt. »","« Un peu, on fait de l’e-learning. »"], a:1, e:"Daylindo ne forme pas et ne fait pas d’e-learning."},
+ {who:"Prospect", line:"« Et ça coûte combien ? »", o:["« Entre 5 000 et 10 000 euros, à peu près. »","« C’est justement ce que notre expert pourra vous expliquer pendant l’échange. »","« C’est gratuit grâce à l’OPCO. »"], a:1, e:"Jamais de prix ni de financement au téléphone : tu renvoies vers l’échange."},
+ {who:"Le bon interlocuteur ?", line:"« Ce n’est pas mon périmètre. »", o:["« Qui s’occupe de ce sujet chez vous ? »","« Dommage, merci. »","« Vous pourriez quand même m’accorder 20 minutes ? »"], a:0, e:"Un nom et un poste, c’est déjà un bon résultat d’appel."},
+ {who:"Rendez-vous accepté", line:"« D’accord, jeudi après-midi ça me va. »", o:["« Super, je vous rappelle jeudi. »","« Je regarde les disponibilités : 14 h ou 16 h ? Je réserve à votre nom, quelle est votre adresse email ? »","« Je transmets à mon collègue, il vous dira l’heure. »"], a:1, e:"Tu réserves sans raccrocher dans le Calendly de Gerardo, avec son nom et son email."}
+];
+const CHRONO = [
+ {who:"Prospect", line:"« Je n’ai pas le temps. »", o:["« Je comprends. Quel moment serait plus simple pour vous ? »","« Ça ne prendra que 2 minutes, promis. »","« Tant pis, au revoir. »"], a:0, e:"Tu respectes son temps et tu cherches le bon moment."},
+ {who:"Prospect", line:"« Vous vendez quoi ? »", o:["« Une plateforme SaaS de gestion des compétences. »","« On aide les entreprises à organiser la transmission des savoir-faire au poste. Mais d’abord, je voulais comprendre comment ça se passe chez vous. »","« Des formations AFEST financées. »"], a:1, e:"La phrase validée, puis tu reviens à sa réalité."},
+ {who:"Prospect", line:"« J’ai vu le message de Carole, je n’ai pas eu le temps de répondre. »", o:["« Pas de souci, c’est pour ça que je vous appelle. Comment validez-vous qu’un technicien est prêt à intervenir seul ? »","« Il faudrait lui répondre, elle attend. »","« Je vous le renvoie par mail ? »"], a:0, e:"Tu enchaînes directement sur la question."},
+ {who:"Prospect", line:"« Je n’ai jamais vu de message de Carole. »", o:["« Bizarre, elle vous a pourtant écrit. »","« Pas de souci, ça arrive souvent avec LinkedIn. En deux mots : nous aidons les entreprises à organiser la transmission des savoir-faire au poste. Je vous appelle pour une seule question… »","« Je vous rappellerai quand vous l’aurez lu. »"], a:1, e:"Pas de justification : tu te présentes et tu poses ta question."},
+ {who:"Prospect", line:"« Pourquoi moi ? »", o:["« Parce que vous êtes directeur d’exploitation, et que c’est souvent vous qui vivez ce sujet au quotidien. »","« Votre nom était dans notre fichier. »","« On appelle tout le monde. »"], a:0, e:"Tu relies sa fonction au problème."},
+ {who:"Prospect", line:"« Ne me rappelez plus. »", o:["« C’est noté, bonne journée. »","« Juste une dernière question… »","« Pourquoi ? »"], a:0, e:"Tu respectes et tu le notes tout de suite."},
+ {who:"Prospect", line:"« Vous travaillez avec qui, comme clients ? »", o:["« Avec plusieurs grands groupes, je peux vous donner leurs noms. »","« Nous travaillons sur ce sujet avec des réseaux de techniciens terrain. Notre expert vous présentera les cas les plus proches du vôtre. »","« Je n’ai pas le droit de vous le dire. »"], a:1, e:"Un cas sans nom : on ne cite jamais un client sans accord."},
+ {who:"Prospect", line:"« On a déjà un LMS pour la formation. »", o:["« Votre outil suit les formations suivies. Est-ce qu’il vous dit qui sait vraiment faire une intervention précise sur le terrain ? »","« Les LMS, ça ne marche pas. »","« Ah, alors on ne peut rien pour vous. »"], a:0, e:"Tu fais la différence entre formation suivie et compétence maîtrisée."}
+];
+const AI_PERSONAS = [
+ {id:"ope", name:"Marc Lefèvre", role:"Directeur d’exploitation, ascensoriste (40 techniciens en tournée)", brief:"Pressé, un peu méfiant. Vrai problème : un seul technicien sait intervenir sur les vieux modèles, et les nouveaux restent en binôme sans règle claire pour partir seuls. Il ne l’avoue que si le setter pose une bonne question ouverte et écoute. Il raccroche poliment si on lui parle produit, plateforme ou financement trop tôt."},
+ {id:"rh", name:"Sophie Garnier", role:"Responsable formation, énergéticien (300 techniciens)", brief:"Aimable mais experte : elle connaît l’AFEST et pose des questions précises pour voir si le setter invente. Vrai problème : les formations se terminent en salle et personne ne valide le geste sur le terrain. Elle accepte un échange si le setter reformule bien sa difficulté sans promettre de chiffres."},
+ {id:"qhse", name:"Karim Benali", role:"Responsable QHSE, opérateur télécoms (techniciens antennes)", brief:"Sec et occupé. Dit d’abord « c’est géré, on a un fichier ». Vrai problème : le jour d’un audit, les preuves d’habilitation sont éparpillées dans plusieurs fichiers. Il s’ouvre seulement si le setter lui demande comment il retrouve la preuve le jour d’un audit."}
+];
+</script>
+<script>
+/* =============== STATE =============== */
+const MISSIONS = [
+ {id:"daylindo", n:"Daylindo en 60 secondes", s:"Une histoire en 4 cartes, puis vrai ou faux"},
+ {id:"motions", n:"Les deux motions", s:"Range chaque situation dans la bonne motion"},
+ {id:"personas", n:"Ce que vit chaque persona", s:"Associe les paires"},
+ {id:"cibles", n:"Quel segment, quel interlocuteur ?", s:"8 situations à trancher"},
+ {id:"mots", n:"Les mots à maîtriser", s:"Flashcards à retourner"},
+ {id:"dire", n:"Dire ou éviter", s:"Tri rapide"}
+];
+const LEVELS = [{n:"Découverte",x:0},{n:"Terrain",x:300},{n:"Autonomie",x:700},{n:"Habilitation",x:1100}];
+const DAY = 86400000, GAPS=[1,3,7];
+const KEY="formation-daylindo-v1";
+function load(){ try{ return Object.assign({done:{},xp:0,review:{}}, JSON.parse(localStorage.getItem(KEY)||"{}")); }catch(e){ return {done:{},xp:0,review:{}}; } }
+let S = load();
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+let stamped=null;
+
+const $=s=>document.querySelector(s);
+function el(tag,attrs={},html){ const n=document.createElement(tag); for(const k in attrs) n.setAttribute(k,attrs[k]); if(html!==undefined) n.innerHTML=html; return n; }
+function btn(label,cls,fn){ const b=el("button",{type:"button",class:"btn "+(cls||"")},label); b.addEventListener("click",fn); return b; }
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+function toast(t){ const n=$("#toast"); n.textContent=t; n.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>n.classList.remove("show"),1600); }
+function addXP(n,label){ S.xp+=n; save(); renderXP(); if(label) toast(label); }
+function renderXP(){
+  let i=0; while(i+1<LEVELS.length && S.xp>=LEVELS[i+1].x) i++;
+  const cur=LEVELS[i], nxt=LEVELS[i+1];
+  $("#lvlName").textContent="Niveau "+cur.n;
+  $("#xpNum").textContent=S.xp+" points";
+  $("#xpBar").style.width = nxt ? ((S.xp-cur.x)/(nxt.x-cur.x)*100)+"%" : "100%";
+  $("#lvlNext").textContent = nxt ? "Encore "+(nxt.x-S.xp)+" points pour le niveau "+nxt.n : "Niveau maximum atteint";
+}
+function complete(id){
+  if(!S.done[id]){ S.done[id]=true; save(); stamped=id; addXP(50,"Mission validée, +50 points"); }
+}
+function schedule(key,right){
+  const r=S.review[key];
+  if(!right){ S.review[key]={due:Date.now()+DAY*GAPS[0],step:0}; }
+  else if(r){ const st=r.step+1; if(st>=GAPS.length) delete S.review[key]; else S.review[key]={due:Date.now()+DAY*GAPS[st],step:st}; }
+  save();
+}
+function dueKeys(){ const now=Date.now(); return Object.keys(S.review).filter(k=>S.review[k].due<=now); }
+function bar(i,n){ return `<div class="meta"><span>${Math.min(i+1,n)} / ${n}</span></div><div class="progress"><span style="width:${(i/n)*100}%"></span></div>`; }
+function itemFor(key){
+  const [t,i]=key.split(":"); const n=+i;
+  if(t==="tf") return {kind:"mcq",it:TF[n]};
+  if(t==="seg") return {kind:"mcq",it:SEGMENTS[n]};
+  if(t==="sim") return {kind:"mcq",it:SIM[n],scene:true};
+  if(t==="chr") return {kind:"mcq",it:CHRONO[n],scene:true};
+  if(t==="card") return {kind:"card",it:CARDS[n]};
+  return null;
+}
+
+/* =============== MAP =============== */
+function renderMap(){
+  const m=$("#main"); m.innerHTML="";
+  const due=dueKeys(), all=Object.keys(S.review);
+  const rv=el("div",{class:"review"});
+  if(due.length){
+    rv.innerHTML=`<div><b>Révision du jour : ${due.length} élément${due.length>1?"s":""}</b><p>Ce que tu as raté revient 1, 3 puis 7 jours plus tard. C’est comme ça que ça reste.</p></div>`;
+    rv.appendChild(btn("Réviser maintenant","primary",()=>location.hash="revision"));
+  } else if(all.length){
+    const next=Math.min(...all.map(k=>S.review[k].due)); const d=Math.max(1,Math.round((next-Date.now())/DAY));
+    rv.innerHTML=`<div><b>Prochaine révision dans ${d} jour${d>1?"s":""}</b><p>${all.length} élément${all.length>1?"s":""} en attente. Reviens ce jour-là pour les revoir.</p></div>`;
+  } else {
+    rv.innerHTML=`<div><b>Révisions espacées</b><p>Chaque erreur est gardée et revient 1, 3 puis 7 jours plus tard, jusqu’à ce que tu la maîtrises.</p></div>`;
+  }
+  m.appendChild(rv);
+  const ol=el("ol",{class:"route"});
+  MISSIONS.filter(ms=>!ms.bonus||SAMPLE).forEach((ms,i)=>{
+    const li=el("li",{class:"stop"+(S.done[ms.id]?" done":"")+(ms.bonus?" bonus":"")});
+    const b=el("button",{type:"button"});
+    b.innerHTML=`<span class="num${stamped===ms.id?" stamp":""}" aria-hidden="true">${S.done[ms.id]?"✓":(ms.bonus?"★":i+1)}</span><span class="t"><b>${ms.n}</b><small>${ms.s}</small></span><span class="tag">${S.done[ms.id]?"Validée":(ms.bonus?"Bonus":"À faire")}</span>`;
+    b.addEventListener("click",()=>location.hash="m-"+ms.id);
+    li.appendChild(b); ol.appendChild(li);
+  });
+  stamped=null;
+  m.appendChild(ol);
+  const core=MISSIONS.filter(x=>!x.bonus);
+  const cert=el("div",{class:"cert"+(core.every(x=>S.done[x.id])?" show":"")});
+  cert.innerHTML=`<h3>Habilitation obtenue</h3><p>Tu as validé les six missions. Montre cet écran à Miora pour passer à la formation de la campagne.</p>`;
+  m.appendChild(cert);
+}
+
+/* =============== SHELL =============== */
+function shell(title,lead){
+  const m=$("#main"); m.innerHTML="";
+  const bk=el("button",{type:"button",class:"back-link"},"Retour au parcours"); bk.addEventListener("click",()=>location.hash=""); m.appendChild(bk);
+  const p=el("section",{class:"panel"}); m.appendChild(p);
+  return p;
+}
+function endScreen(p,{big,text,pass,mission,retry}){
+  p.innerHTML=`<div class="end"><div class="big">${big}</div><p>${text}</p><div class="row"></div></div>`;
+  const row=p.querySelector(".row");
+  if(retry) row.appendChild(btn("Recommencer","",retry));
+  row.appendChild(btn(pass?"Mission suivante":"Retour au parcours","primary",()=>{
+    if(!pass){ location.hash=""; return; }
+    const i=MISSIONS.findIndex(x=>x.id===mission); const nx=MISSIONS[i+1];
+    location.hash = nx ? "m-"+nx.id : "";
+  }));
+  if(pass) complete(mission);
+}
+
+/* =============== ENGINES =============== */
+function mcq(p,{items,keys,title,lead,mission,scene,timer,onDone}){
+  let i=0,score=0;
+  const order=shuffle(items.map((it,k)=>({it,key:keys?keys[k]:null})));
+  function draw(){
+    if(i>=order.length){ onDone(score,order.length); return; }
+    const {it,key}=order[i];
+    p.innerHTML=`<h2>${title}</h2><p class="lead">${lead}</p>${bar(i,order.length)}`;
+    let tbar=null,tid=null;
+    if(timer){ tbar=el("div",{class:"timer"},"<span></span>"); p.appendChild(tbar); }
+    if(scene){ p.appendChild(el("div",{class:"scene"},`<div class="who">${it.who}</div><div class="line">${it.line}</div>`)); p.appendChild(el("p",{class:"q"},"Que réponds-tu ?")); }
+    else p.appendChild(el("p",{class:"q"},it.c));
+    const opts=el("div",{class:"opts"}), fb=el("div",{class:"feedback"});
+    const o=shuffle(it.o.map((t,k)=>({t,k})));
+    const answer=(k,b)=>{
+      if(tid){ clearInterval(tid); tid=null; }
+      opts.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+      const right=k===it.a;
+      if(right){ score++; addXP(10,"+10 points"); }
+      if(b) b.classList.add(right?"right":"wrong");
+      opts.querySelectorAll(".opt")[o.findIndex(x=>x.k===it.a)].classList.add("right");
+      if(key) schedule(key,right);
+      fb.className="feedback show "+(right?"ok":"ko");
+      fb.innerHTML=`<b>${right?"Exactement.":(k===-1?"Temps écoulé.":"Pas tout à fait.")}</b>${it.e}`;
+      const nx=btn(i+1<order.length?"Suivant":"Voir mon score","primary next",()=>{ i++; draw(); });
+      fb.appendChild(el("div")); fb.lastChild.appendChild(nx); nx.focus();
+    };
+    o.forEach(({t,k})=>{ const b=el("button",{class:"opt",type:"button"},t); b.addEventListener("click",()=>answer(k,b)); opts.appendChild(b); });
+    p.append(opts,fb);
+    if(timer){
+      const start=Date.now(), span=tbar.firstChild;
+      tid=setInterval(()=>{ const left=1-(Date.now()-start)/(timer*1000); span.style.width=Math.max(0,left*100)+"%"; if(left<=0) answer(-1,null); },100);
+      draw.stop=()=>{ if(tid) clearInterval(tid); };
+    }
+  }
+  draw();
+  return ()=>draw.stop&&draw.stop();
+}
+function sorter(p,{items,labels,title,lead,mission,check}){
+  let list=shuffle(items),i=0,score=0;
+  function draw(){
+    if(i>=list.length){ const pass=score/list.length>=0.8;
+      endScreen(p,{big:score+" / "+list.length,text:pass?"Mission validée.":"Il faut au moins 80 %. Recommence, tu y es presque.",pass,mission,retry:()=>{list=shuffle(items);i=0;score=0;draw();}}); return; }
+    const w=list[i];
+    p.innerHTML=`<h2>${title}</h2><p class="lead">${lead}</p>${bar(i,list.length)}`;
+    const card=el("div",{class:"sort-card"},w.w); p.appendChild(card);
+    const bs=el("div",{class:"sort-btns"}), fb=el("div",{class:"feedback"});
+    const pick=(v,dir)=>{
+      bs.querySelectorAll("button").forEach(b=>b.disabled=true);
+      const right=check(w,v); if(right){ score++; addXP(10,"+10 points"); }
+      card.classList.add(dir);
+      fb.className="feedback show "+(right?"ok":"ko");
+      fb.innerHTML=`<b>${right?"Bien vu.":"Pas tout à fait."}</b>${w.e}`;
+      const nx=btn(i+1<list.length?"Suivant":"Voir mon score","primary next",()=>{i++;draw();});
+      fb.appendChild(el("div")); fb.lastChild.appendChild(nx); nx.focus();
+    };
+    bs.append(btn(labels[0][0],"good",()=>pick(labels[0][1],"go-left")), btn(labels[1][0],"again",()=>pick(labels[1][1],"go-right")));
+    p.append(bs,fb);
+  }
+  draw();
+}
+function matcher(p,{rounds,title,mission}){
+  let r=0, mistakes=0;
+  function draw(){
+    if(r>=rounds.length){ const pass=mistakes<=3;
+      endScreen(p,{big:mistakes===0?"Parfait":mistakes+" erreur"+(mistakes>1?"s":""),text:pass?"Tu sais ce que vit chaque persona. Mission validée.":"Plus de 3 erreurs : recommence pour bien fixer les paires.",pass,mission,retry:()=>{r=0;mistakes=0;draw();}}); return; }
+    const R=rounds[r];
+    p.innerHTML=`<h2>${title}</h2><p class="lead">${R.lead}</p><div class="meta"><span>Manche ${r+1} / ${rounds.length}</span></div>`;
+    const grid=el("div",{class:"match"}), L=el("div",{class:"col"}), Rc=el("div",{class:"col"});
+    L.appendChild(el("p",{class:"muted",style:"margin:0"},"Les personas")); Rc.appendChild(el("p",{class:"muted",style:"margin:0"},R.right));
+    let selL=null,left=R.pairs.length;
+    const rights=shuffle(R.pairs.map((x,k)=>({t:x[1],k})));
+    R.pairs.forEach((x,k)=>{ const b=el("button",{type:"button",class:"tile"},x[0]); b.dataset.k=k;
+      b.addEventListener("click",()=>{ L.querySelectorAll(".tile").forEach(t=>t.classList.remove("sel")); b.classList.add("sel"); selL=b; }); L.appendChild(b); });
+    rights.forEach(({t,k})=>{ const b=el("button",{type:"button",class:"tile"},t);
+      b.addEventListener("click",()=>{
+        if(!selL){ toast("Choisis d’abord un persona à gauche"); return; }
+        if(+selL.dataset.k===k){ [selL,b].forEach(x=>{x.classList.remove("sel");x.classList.add("paired");x.disabled=true;}); selL=null; left--; addXP(10,"+10 points");
+          if(!left){ const nx=btn(r+1<rounds.length?"Manche suivante":"Voir le résultat","primary next",()=>{r++;draw();}); p.appendChild(nx); nx.focus(); } }
+        else { mistakes++; b.classList.add("nope"); setTimeout(()=>b.classList.remove("nope"),400); }
+      }); Rc.appendChild(b); });
+    grid.append(L,Rc); p.appendChild(grid);
+  }
+  draw();
+}
+function orderer(p,{rounds,title,mission}){
+  let r=0, mistakes=0;
+  function draw(){
+    if(r>=rounds.length){ const pass=mistakes<=2;
+      endScreen(p,{big:mistakes===0?"Parfait":mistakes+" erreur"+(mistakes>1?"s":""),text:pass?"Tu connais le déroulé d’un appel. Mission validée.":"Plus de 2 erreurs : recommence.",pass,mission,retry:()=>{r=0;mistakes=0;draw();}}); return; }
+    const R=rounds[r]; let next=0;
+    p.innerHTML=`<h2>${title}</h2><p class="lead">${R.lead}</p><div class="meta"><span>Manche ${r+1} / ${rounds.length}</span></div>`;
+    const slots=el("div",{class:"slots"});
+    R.items.forEach((_,k)=>slots.appendChild(el("div",{class:"slot"},`<b>${k+1}</b><span>…</span>`)));
+    const pool=el("div",{class:"opts"});
+    shuffle(R.items.map((x,k)=>({x,k}))).forEach(({x,k})=>{
+      const b=el("button",{type:"button",class:"opt"},x.d?`<b>${x.r}</b> : ${x.d}`:x.r);
+      b.addEventListener("click",()=>{
+        if(k===next){ const s=slots.children[next]; s.classList.add("filled"); s.querySelector("span").innerHTML=b.innerHTML; b.remove(); next++; addXP(5,"+5 points");
+          if(next===R.items.length){ const nx=btn(r+1<rounds.length?"Manche suivante":"Voir le résultat","primary next",()=>{r++;draw();}); p.appendChild(nx); nx.focus(); } }
+        else { mistakes++; b.classList.add("wrong"); setTimeout(()=>b.classList.remove("wrong"),400); }
+      }); pool.appendChild(b); });
+    p.append(slots,pool);
+  }
+  draw();
+}
+function cards(p,{deck,keys,title,mission,review,onDone}){
+  let list=deck.map((c,k)=>({c,key:keys[k]})), i=0, again=[];
+  function draw(){
+    if(i>=list.length){
+      if(review){ onDone(); return; }
+      if(again.length){ p.innerHTML=`<div class="end"><div class="big">${again.length}</div><p>carte${again.length>1?"s":""} à revoir. On les reprend jusqu’à ce que tu les saches toutes.</p><div class="row"></div></div>`;
+        p.querySelector(".row").appendChild(btn("Revoir ces cartes","primary",()=>{ list=shuffle(again); again=[]; i=0; draw(); })); return; }
+      endScreen(p,{big:"✓",text:"Tu connais tous les mots. Mission validée.",pass:true,mission}); return;
+    }
+    const {c,key}=list[i];
+    p.innerHTML=`<h2>${title}</h2><p class="lead">Explique le mot à voix haute, puis retourne la carte pour vérifier.</p>${bar(i,list.length)}`;
+    const f=el("div",{class:"flip"}), fb=el("button",{type:"button",class:"flip-btn","aria-label":"Retourner la carte"});
+    fb.innerHTML=`<div class="flip-inner"><div class="face front"><div class="term">${c.t}</div><div class="hint">Touche la carte pour la retourner</div></div><div class="face back"><p>${c.d}</p><p class="say"><i>Au téléphone</i>${c.s}</p></div></div>`;
+    const row=el("div",{class:"row"});
+    const know=btn("Je sais","good",()=>{ addXP(5,"+5 points"); schedule(key,true); i++; draw(); });
+    const no=btn("À revoir","again",()=>{ schedule(key,false); if(!review) again.push(list[i]); i++; draw(); });
+    know.disabled=no.disabled=true;
+    fb.addEventListener("click",()=>{ f.classList.toggle("on"); know.disabled=no.disabled=false; });
+    f.appendChild(fb); row.append(know,no); p.append(f,row);
+  }
+  draw();
+}
+
+/* =============== MISSIONS =============== */
+let stopTimer=null;
+const RUN = {
+ daylindo(p){
+  let s=0;
+  function slide(){
+    if(s>=STORY.length){
+      mcq(p,{items:TF,keys:TF.map((_,k)=>"tf:"+k),title:"Vrai ou faux ?",lead:"Vérifie que tu as retenu l’essentiel.",mission:"daylindo",
+        onDone:(sc,n)=>{ const pass=sc/n>=0.8; endScreen(p,{big:sc+" / "+n,text:pass?"Tu sais présenter Daylindo. Mission validée.":"Il faut au moins 4 bonnes réponses sur 5.",pass,mission:"daylindo",retry:()=>RUN.daylindo(p)}); }});
+      return;
+    }
+    const x=STORY[s];
+    p.innerHTML=`<h2>Daylindo en 60 secondes</h2><p class="lead">Lis chaque carte, puis passe à la suivante.</p>`;
+    p.appendChild(el("div",{class:"story"},`<h3>${x.h}</h3><p>${x.p}</p>`));
+    p.appendChild(el("div",{class:"dots"},STORY.map((_,k)=>`<i class="${k<=s?"on":""}"></i>`).join("")));
+    const nx=btn(s+1<STORY.length?"Carte suivante":"Je passe au vrai ou faux","primary",()=>{ s++; slide(); }); p.appendChild(nx); nx.focus();
+  }
+  slide();
+ },
+ motions(p){ sorter(p,{items:MOTIONS,labels:[["Motion 1 : Intégration",1],["Motion 2 : Compétences",2]],title:"Les deux motions",lead:"Cette situation relève de quelle motion ?",mission:"motions",check:(w,v)=>w.m===v}); },
+ personas(p){ matcher(p,{title:"Ce que vit chaque persona",mission:"personas",rounds:[
+   {right:"Ce qu’ils craignent",lead:"Manche 1 : associe chaque persona à ce qu’il craint. Touche un persona, puis sa crainte.",pairs:PERSONAS.map(x=>[x.p,x.f])},
+   {right:"La question à leur poser",lead:"Manche 2 : associe chaque persona à la question à lui poser.",pairs:PERSONAS.map(x=>[x.p,x.q])}]}); },
+ cibles(p){ mcq(p,{items:SEGMENTS,keys:SEGMENTS.map((_,k)=>"seg:"+k),title:"Quel segment, quel interlocuteur ?",lead:"Lis la situation et choisis la bonne réponse.",
+   onDone:(sc,n)=>{ const pass=sc/n>=0.8; endScreen(p,{big:sc+" / "+n,text:pass?"Tu sais qui appeler. Mission validée.":"Il faut au moins 80 %. Relis les explications et recommence.",pass,mission:"cibles",retry:()=>RUN.cibles(p)}); }}); },
+ mots(p){ cards(p,{deck:CARDS,keys:CARDS.map((_,k)=>"card:"+k),title:"Les mots à maîtriser",mission:"mots"}); },
+ dire(p){ sorter(p,{items:WORDS,labels:[["Je le dis",true],["J’évite",false]],title:"Dire ou éviter ?",lead:"Au téléphone, tu dirais ça ?",mission:"dire",check:(w,v)=>w.ok===v}); },
+ ordre(p){ orderer(p,{title:"Construire l’appel",mission:"ordre",rounds:[
+   {lead:"Manche 1 : touche les étapes d’un appel dans le bon ordre.",items:STEPS},
+   {lead:"Manche 2 : remets les répliques de l’appel dans l’ordre.",items:LINES}]}); },
+ appel(p){ stopTimer=mcq(p,{items:SIM,keys:SIM.map((_,k)=>"sim:"+k),scene:true,title:"Simulateur d’appel",lead:"Campagne « Sachez qui sait faire quoi ». Choisis la meilleure réplique.",
+   onDone:(sc,n)=>{ const pass=sc/n>=0.8; endScreen(p,{big:sc+" / "+n,text:pass?"Tu maîtrises l’appel de la campagne. Mission validée.":"Il faut au moins 80 %.",pass,mission:"appel",retry:()=>RUN.appel(p)}); }}); },
+ chrono(p){ stopTimer=mcq(p,{items:CHRONO,keys:CHRONO.map((_,k)=>"chr:"+k),scene:true,timer:12,title:"Objections chrono",lead:"12 secondes pour choisir. Au téléphone, tu n’as pas plus de temps.",
+   onDone:(sc,n)=>{ const pass=sc/n>=0.75; endScreen(p,{big:sc+" / "+n,text:pass?"Réflexes validés.":"Il faut au moins 6 bonnes réponses sur 8.",pass,mission:"chrono",retry:()=>RUN.chrono(p)}); }}); },
+ ia(p){ runAI(p); }
+};
+function runReview(p){
+  const keys=shuffle(dueKeys());
+  if(!keys.length){ p.innerHTML=`<div class="end"><div class="big">✓</div><p>Rien à réviser aujourd’hui.</p></div>`; return; }
+  let i=0;
+  function next(){
+    if(i>=keys.length){ p.innerHTML=`<div class="end"><div class="big">✓</div><p>Révision terminée. Ce que tu as su reviendra plus tard, à intervalle plus long.</p><div class="row"></div></div>`;
+      p.querySelector(".row").appendChild(btn("Retour au parcours","primary",()=>location.hash="")); return; }
+    const key=keys[i], x=itemFor(key); i++;
+    if(!x){ next(); return; }
+    if(x.kind==="card") cards(p,{deck:[x.it],keys:[key],title:"Révision du jour",review:true,onDone:next});
+    else mcq(p,{items:[x.it],keys:[key],scene:x.scene,title:"Révision du jour",lead:"Élément "+i+" sur "+keys.length,onDone:next});
+  }
+  next();
+}
+</script>
+<script>
+
+</script>
+<script>
+/* =============== AI ROLEPLAY =============== */
+let SAMPLE=null, TTS=null, DICT=null, capsReady=false;
+const GRILLE=[
+ "Présentation claire : son prénom, Daylindo et le lien avec le message LinkedIn de Carole Laffont",
+ "Une seule question ouverte adaptée à la fonction du prospect",
+ "Écoute : relances courtes (« C’est-à-dire ? », « Concrètement ? ») plutôt que du discours",
+ "Reformulation de la difficulté avec les mots du prospect",
+ "Objection traitée sans contredire ni insister",
+ "Aucun mot interdit : former, plateforme, logiciel, AFEST, OPCO, financement, démo, certifier, prix",
+ "Proposition d’un échange de 20 minutes avec un expert et d’un créneau précis"
+];
+function runAI(p){
+  p.innerHTML=`<h2>Appel avec un prospect IA</h2><p class="lead">Comme dans les outils d’entraînement des grandes équipes commerciales : tu parles à un prospect simulé, puis ton appel est noté sur la grille d’observation. Écris (ou dicte) ce que tu dirais au téléphone.</p>`;
+  if(!capsReady){ p.appendChild(el("p",{class:"muted"},"Connexion en cours…")); return; }
+  if(!SAMPLE){ p.appendChild(el("p",{class:"muted"},"Cette mission a besoin d’ouvrir la page dans Claude, avec ton compte. Les neuf autres missions marchent partout.")); return; }
+  const pick=el("div",{class:"persona-pick"});
+  AI_PERSONAS.forEach(per=>{ const b=el("button",{type:"button"},`<b>${per.name}</b><small>${per.role}</small>`); b.addEventListener("click",()=>chat(p,per)); pick.appendChild(b); });
+  p.appendChild(el("p",{class:"q"},"Qui veux-tu appeler ?")); p.appendChild(pick);
+}
+function chat(p,per){
+  const turns=[{who:"them",text:"Allô ?"}]; let busy=false, ctl=null, voice=false;
+  p.innerHTML=`<h2>${per.name}</h2><p class="lead">${per.role}. Il n’a pas répondu au message LinkedIn de Carole. À toi de jouer.</p>`;
+  const box=el("div",{class:"chat","aria-live":"polite"}); p.appendChild(box);
+  const addMsg=(who,text)=>{ const m=el("div",{class:"msg "+who}); m.textContent=text; box.appendChild(m); box.scrollTop=box.scrollHeight; return m; };
+  addMsg("note","Le téléphone sonne… on décroche.");
+  addMsg("them","Allô ?");
+  const comp=el("div",{class:"compose"});
+  const ta=el("textarea",{"aria-label":"Ta réplique",placeholder:"Ta réplique au téléphone…"});
+  const send=el("button",{type:"button",class:"btn primary"},"Envoyer");
+  comp.appendChild(ta);
+  if(DICT){
+    const mic=el("button",{type:"button",class:"icon-btn","aria-label":"Dicter ma réplique"},"🎙");
+    DICT.onFinal(({text})=>{ ta.value=(ta.value?ta.value+" ":"")+text; });
+    DICT.onState(({state})=>mic.classList.toggle("live",state==="listening"));
+    mic.addEventListener("click",()=>{ if(mic.classList.contains("live")) DICT.stop().catch(()=>{}); else DICT.start().catch(()=>{ mic.remove(); }); });
+    comp.appendChild(mic);
+  }
+  comp.appendChild(send); p.appendChild(comp);
+  const row=el("div",{class:"row",style:"margin-top:12px"});
+  if(TTS){ const vb=btn("Voix du prospect : coupée","",()=>{ voice=!voice; vb.textContent="Voix du prospect : "+(voice?"activée":"coupée"); if(!voice) TTS.stop(); }); row.appendChild(vb); }
+  row.appendChild(btn("Raccrocher et voir ma note","good",()=>score(p,per,turns)));
+  row.appendChild(btn("Changer de prospect","",()=>runAI(p)));
+  p.appendChild(row);
+  const prompt=()=>`Tu joues un prospect au téléphone dans un exercice d’entraînement pour une setter débutante de Daylindo, une entreprise française qui aide les entreprises à organiser la transmission des savoir-faire au poste.
+Ton personnage : ${per.name}, ${per.role}. ${per.brief}
+Contexte : Carole Laffont, de Daylindo, t’a écrit sur LinkedIn il y a deux semaines ; tu n’as pas répondu.
+Règles : réponds uniquement par la prochaine réplique de ton personnage, en français parlé, en 1 à 3 phrases courtes, sans didascalie ni guillemets. Sois réaliste, ni trop facile ni impossible. Si la setter propose un échange avec un expert après que tu as décrit ta difficulté, accepte et donne un jour. Si elle fait un pitch produit, utilise du jargon, parle de financement ou insiste, deviens plus froid. Ne sors jamais de ton personnage.
+
+Conversation jusqu’ici :
+${turns.map(t=>(t.who==="me"?"Setter : ":per.name+" : ")+t.text).join("\n")}
+
+Réplique de ${per.name} :`;
+  async function go(){
+    const text=ta.value.trim(); if(!text||busy) return;
+    busy=true; send.disabled=true; ta.value="";
+    turns.push({who:"me",text}); addMsg("me",text);
+    const bub=addMsg("them","…");
+    ctl=new AbortController();
+    try{
+      const r=await SAMPLE(prompt(),{modelTier:"quick",cache:false,signal:ctl.signal,onText:({text})=>{ bub.textContent=text; box.scrollTop=box.scrollHeight; }});
+      const reply=r.text.trim(); bub.textContent=reply; turns.push({who:"them",text:reply});
+      if(voice&&TTS) TTS.speak(reply,{voice:"rounded"}).catch(()=>{});
+    }catch(e){
+      bub.textContent = e.code==="not_granted" ? "Il faut autoriser Claude pour jouer cette mission." : e.code==="rate_limited" ? "Trop de messages d’un coup : attends quelques secondes et renvoie ta réplique." : "La ligne a coupé. Renvoie ta réplique.";
+      bub.className="msg note"; turns.pop(); ta.value=text;
+    }finally{ busy=false; send.disabled=false; ta.focus(); }
+  }
+  send.addEventListener("click",go);
+  ta.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); go(); } });
+  ta.focus();
+}
+async function score(p,per,turns){
+  if(turns.filter(t=>t.who==="me").length<2){ toast("Échange au moins deux répliques avant de raccrocher"); return; }
+  if(TTS) TTS.stop();
+  p.innerHTML=`<h2>Ta note</h2><p class="lead">Analyse de ton appel avec ${per.name} sur la grille d’observation…</p><p class="muted">Cela peut prendre une trentaine de secondes.</p>`;
+  const transcript=turns.map(t=>(t.who==="me"?"Setter : ":per.name+" : ")+t.text).join("\n");
+  const input=`Tu es coach de setters chez Daylindo. Évalue cet appel d’entraînement d’une setter débutante, avec bienveillance mais sans complaisance.
+Grille (chaque critère noté 0, 1 ou 2) :
+${GRILLE.map((g,k)=>(k+1)+". "+g).join("\n")}
+
+Transcription :
+${transcript}
+
+Réponds uniquement en JSON : {"criteres":[{"nom":"…","points":0,"commentaire":"une phrase concrète citant ce qu’elle a dit"}],"point_fort":"une phrase","a_travailler":"une phrase avec une réplique à essayer la prochaine fois"}. Garde l’ordre de la grille, 7 critères, en français.`;
+  try{
+    const res=await SAMPLE.json(input,{modelTier:"default"});
+    const crit=(res.criteres||[]).slice(0,7); const total=crit.reduce((s,c)=>s+(+c.points||0),0); const max=GRILLE.length*2;
+    const pass=total>=10;
+    p.innerHTML=`<h2>Ta note : ${total} / ${max}</h2><p class="lead">${pass?"Bel appel. Mission bonus validée.":"Il faut 10 points sur 14 pour valider la mission bonus. Rejoue l’appel en appliquant le conseil."}</p>`;
+    const list=el("div",{class:"score-list"});
+    crit.forEach(c=>{ const it=el("div",{class:"score-item"}); it.innerHTML=`<span class="pts">${+c.points||0}/2</span><span><b></b><br><span class="muted"></span></span>`; it.querySelector("b").textContent=c.nom||""; it.querySelector(".muted").textContent=c.commentaire||""; list.appendChild(it); });
+    p.appendChild(list);
+    const f=el("div",{class:"feedback show ok"}); f.innerHTML="<b>Ton point fort</b>"; f.appendChild(document.createTextNode(res.point_fort||"")); p.appendChild(f);
+    const w=el("div",{class:"feedback show ko"}); w.innerHTML="<b>À travailler</b>"; w.appendChild(document.createTextNode(res.a_travailler||"")); p.appendChild(w);
+    addXP(total*5,"+"+(total*5)+" points");
+    if(pass) complete("ia");
+    const row=el("div",{class:"row",style:"margin-top:14px"});
+    row.append(btn("Rejouer avec ce prospect","primary",()=>chat(p,per)),btn("Changer de prospect","",()=>runAI(p)));
+    p.appendChild(row);
+  }catch(e){
+    p.innerHTML=`<h2>Ta note</h2><p class="lead">${e.code==="rate_limited"?"Trop de demandes d’un coup. Attends un instant puis réessaie.":"La note n’a pas pu être calculée. Réessaie."}</p>`;
+    p.appendChild(btn("Réessayer","primary",()=>score(p,per,turns)));
+  }
+}
+
+/* =============== ROUTER =============== */
+function route(){
+  if(stopTimer){ stopTimer(); stopTimer=null; }
+  if(TTS) TTS.stop();
+  const h=location.hash.slice(1);
+  renderXP();
+  if(h==="revision"){ const p=shell(); runReview(p); }
+  else if(h.startsWith("m-") && RUN[h.slice(2)]){ const p=shell(); RUN[h.slice(2)](p); }
+  else renderMap();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+$("#reset").addEventListener("click",()=>{ S={done:{},xp:0,review:{}}; save(); location.hash=""; route(); });
+route();
+(async()=>{
+  try{ if(window.claude&&claude.use){ [SAMPLE,TTS,DICT]=await Promise.all([claude.use("sample"),claude.use("tts"),claude.use("dictation")]); } }catch(e){}
+  capsReady=true;
+  if(location.hash==="#m-ia"||(SAMPLE&&!location.hash)) route();
+})();
+</script>
+</body>
+</html>
