@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transformer un appel en rendez-vous</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E2A3A; --paper:#F4F6F8; --card:#FFFFFF; --steel:#5B6B7F; --line:#D5DBE2;
+  --signal:#F2B705; --ok:#2E8B57; --ok-bg:#E3F3EA; --ko:#C8463D; --ko-bg:#FBE7E5; --soft:#E9EDF2;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--ink:#E8EDF3;--paper:#121A24;--card:#1B2633;--steel:#9AA8B8;--line:#2C3A4A;--ok:#5CC48A;--ok-bg:#163326;--ko:#F07A70;--ko-bg:#3A1C1A;--soft:#223040;color-scheme:dark}
+}
+:root[data-theme="dark"]{--ink:#E8EDF3;--paper:#121A24;--card:#1B2633;--steel:#9AA8B8;--line:#2C3A4A;--ok:#5CC48A;--ok-bg:#163326;--ko:#F07A70;--ko-bg:#3A1C1A;--soft:#223040;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;line-height:1.1;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.wrap{max-width:900px;margin:0 auto;padding:18px 18px 48px}
+.stripe{height:8px;border-radius:4px;background:repeating-linear-gradient(-45deg,var(--signal) 0 14px,var(--ink) 14px 28px)}
+header h1{font-size:clamp(30px,6vw,48px);margin-top:14px}
+header p{margin:6px 0 0;color:var(--steel);max-width:62ch}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding:12px 0;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+nav button{border:2px solid var(--ink);background:var(--card);border-radius:999px;padding:8px 16px;font-weight:600}
+nav button[aria-current="true"]{background:var(--ink);color:var(--paper)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:14px}
+.card h2{font-size:28px;margin-bottom:6px}
+.card h3{font-size:21px;margin:18px 0 6px}
+.lead{color:var(--steel);margin:4px 0 14px}
+.num{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--signal);color:#1E2A3A;font-family:"Barlow Condensed",sans-serif;font-weight:700;margin-right:8px}
+.say{margin:8px 0;padding:12px 14px;border-left:5px solid var(--signal);background:var(--soft);border-radius:0 10px 10px 0}
+.no{margin:8px 0;padding:12px 14px;border-left:5px solid var(--ko);background:var(--ko-bg);border-radius:0 10px 10px 0}
+.yes{margin:8px 0;padding:12px 14px;border-left:5px solid var(--ok);background:var(--ok-bg);border-radius:0 10px 10px 0}
+.no b,.yes b{display:block;font-size:14px;color:var(--steel);font-weight:600}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--ink);color:var(--paper);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{background:var(--signal);color:#1E2A3A;border-radius:999px;padding:4px 12px;font-weight:600;font-size:15px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0}
+.step{border:2px solid var(--line);border-radius:14px;padding:12px 14px}
+.step b{font-family:"Barlow Condensed",sans-serif;font-size:20px;display:block}
+.print{float:right;border:2px solid var(--ink);background:var(--card);border-radius:10px;padding:6px 12px;font-weight:600}
+/* drills */
+.meta{display:flex;justify-content:space-between;color:var(--steel);font-size:15px;margin-bottom:8px}
+.progress{height:6px;background:var(--soft);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.progress span{display:block;height:100%;background:var(--signal);transition:width .35s ease}
+.scene{background:var(--soft);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.scene .who{font-family:"Barlow Condensed",sans-serif;font-size:18px;color:var(--steel)}
+.scene .line{font-size:20px;margin-top:6px;line-height:1.7}
+.seg{display:inline;white-space:normal;line-height:1.7;border:0;background:none;padding:2px 4px;border-radius:6px;border-bottom:2px dashed var(--line);font-size:inherit;text-align:left}
+.seg:hover:not(:disabled){background:var(--card)}
+.seg.right{background:var(--signal);color:#1E2A3A;border-bottom-color:transparent}
+.seg.wrong{background:var(--ko-bg);animation:shake .35s}
+.seg:disabled{cursor:default}
+.q{font-size:19px;font-weight:600;margin:0 0 12px}
+.opts{display:grid;gap:10px}
+.opt{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:12px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--ko);background:var(--ko-bg);animation:shake .35s}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.feedback{margin-top:14px;padding:14px 16px;border-radius:12px;display:none}
+.feedback.show{display:block;animation:rise .3s ease}
+.feedback.ok{background:var(--ok-bg)} .feedback.ko{background:var(--ko-bg)}
+.feedback b{display:block;margin-bottom:4px}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.btn{border:2px solid var(--ink);background:var(--card);border-radius:10px;padding:10px 16px;font-weight:600;margin-top:12px}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.drills{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.drill{text-align:left;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:14px}
+.drill:hover{border-color:var(--ink)}
+.drill b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:22px}
+.drill small{color:var(--steel)}
+.drill .done{color:var(--ok);font-weight:600}
+.end{text-align:center;padding:16px 6px}
+.end .big{font-family:"Barlow Condensed",sans-serif;font-size:60px;font-weight:700}
+.calls{display:grid;gap:12px}
+.call{border:1px solid var(--line);border-radius:14px;padding:16px}
+.call h3{margin:0 0 4px}
+.call .res{font-weight:600}
+.tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:14px;font-weight:600;margin-left:6px}
+.tag.rdv{background:var(--ok-bg);color:var(--ok)} .tag.ref{background:var(--ko-bg);color:var(--ko)}
+.call ul{margin:8px 0 0;padding-left:20px}
+.muted{color:var(--steel)}
+footer{margin-top:22px;color:var(--steel);font-size:14px}
+@media (max-width:600px){.card{padding:16px}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  nav,.print,footer,header p{display:none}
+  body{background:#fff;color:#000;font-size:12.5px}
+  .card{border:0;padding:0;margin:0 0 6px}
+  th{background:#eee;color:#000}
+  .say,.yes,.no{background:none}
+  [data-view]:not([data-view="fiche"]){display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="stripe" aria-hidden="true"></div>
+    <h1>Transformer un appel en rendez-vous</h1>
+    <p>Construit à partir de tes quatre premiers appels de la campagne « Sachez qui sait faire quoi ». La fiche réflexe se garde ouverte pendant tes appels. L’entraînement se fait avant.</p>
+  </header>
+  <nav aria-label="Sections">
+    <button type="button" data-go="fiche">Fiche réflexe</button>
+    <button type="button" data-go="entrainement">Entraînement</button>
+    <button type="button" data-go="appels">Mes 4 appels</button>
+  </nav>
+
+  <!-- ================= FICHE ================= -->
+  <section data-view="fiche">
+    <div class="card">
+      <button type="button" class="print" onclick="window.print()">Imprimer</button>
+      <h2>La fiche réflexe</h2>
+      <p class="lead">Un prospect ne dit jamais non à une difficulté qu’il a lui-même décrite. Ton travail : la lui faire dire, puis la reprendre avec ses mots.</p>
+
+      <h3><span class="num">1</span>L’ouverture : pourquoi tu l’appelles, lui</h3>
+      <div class="no"><b>À ne plus dire</b>« Oui, bonjour Richard, Carla de Daylindo. Je me permets de vous appeler parce qu’on aide les entreprises à organiser… »</div>
+      <div class="yes"><b>À dire</b>« Bonjour Monsieur [Nom], Carla de Daylindo. Ma collègue Carole Laffont vous a écrit sur LinkedIn au sujet de vos techniciens terrain. Je vous appelle pour une seule question. »</div>
+      <p>Il demande « à quel sujet ? » ou « pour quoi exactement ? » : ne répète pas ta présentation, pose ta question.</p>
+      <div class="say">« C’est au sujet de vos techniciens : comment validez-vous qu’un technicien est prêt à intervenir seul ? »</div>
+      <p>La ligne est mauvaise :</p>
+      <div class="say">« La ligne est mauvaise, je vous rappelle dans deux minutes ? »</div>
+
+      <h3><span class="num">2</span>Les mots-signaux : arrête-toi dessus</h3>
+      <p>Quand tu entends l’un de ces mots, tu ne passes pas à la question suivante du guide. Tu poses une question sur ce mot, puis tu te tais.</p>
+      <div class="chips"><span class="chip">ça dépend</span><span class="chip">quasiment</span><span class="chip">en général</span><span class="chip">c’est une entente</span><span class="chip">on s’arrange</span><span class="chip">au feeling</span><span class="chip">on reste disponible par téléphone</span><span class="chip">on est en train de revoir</span></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Il dit</th><th>Ça révèle</th><th>Tu relances</th></tr></thead>
+        <tbody>
+          <tr><td>« C’est une entente, on en discute avec le chef de secteur »</td><td>La décision repose sur une discussion, pas sur une preuve</td><td>« Et quand il passe sur une machine qu’il n’a pas vue en formation, qui valide qu’il sait vraiment faire ? »</td></tr>
+          <tr><td>« Ça dépend des agences »</td><td>Le niveau n’est pas le même partout</td><td>« Comment vous assurez-vous que le niveau est le même d’une agence à l’autre ? »</td></tr>
+          <tr><td>« On est en train de revoir le programme de formation »</td><td>Un projet en cours : c’est le bon moment</td><td>« Dans ce nouveau programme, comment allez-vous vérifier sur le terrain qu’il maîtrise vraiment ? »</td></tr>
+          <tr><td>« Ensuite ils prennent leur envol »</td><td>On ne sait pas qui décide, ni sur quoi</td><td>« Ce moment où il prend son envol, qui le décide, et sur quoi ? »</td></tr>
+          <tr><td>« Quasiment »</td><td>Tout n’est pas tracé</td><td>« Quasiment ? Qu’est-ce qui n’est pas encore tracé ? »</td></tr>
+          <tr><td>« On reste disponible par téléphone, on se déplace s’il faut »</td><td>Les nouveaux ne sont pas vraiment autonomes</td><td>« Ça arrive souvent ? Dans quelles situations ? »</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3><span class="num">3</span>Ne réponds jamais à sa place</h3>
+      <div class="no"><b>Ces phrases ferment la porte</b>« Donc quand le technicien est absent, il n’y a pas forcément de problème. »<br>« Bon, du coup vous n’êtes pas intéressé. »</div>
+      <div class="yes"><b>Garde une question ouverte</b>« Et quand le technicien est absent, ça se passe comment ? »</div>
+
+      <h3><span class="num">4</span>Proposer l’échange en trois temps</h3>
+      <div class="steps">
+        <div class="step"><b>1. Reprendre ses mots</b>« Si je comprends bien, la décision qu’il est prêt se fait par discussion avec le chef de secteur. »</div>
+        <div class="step"><b>2. Faire le lien</b>« C’est exactement le sujet sur lequel nous travaillons chez Daylindo. »</div>
+        <div class="step"><b>3. Proposer un choix</b>« Ça vaudrait la peine d’en parler 20 minutes avec un expert de notre équipe. Plutôt en début ou en fin de semaine ? »</div>
+      </div>
+      <div class="no"><b>À ne plus dire</b>« Est-ce que ça vous intéresserait d’échanger avec un expert ? » Cette question appelle un non.</div>
+
+      <h3><span class="num">5</span>« On a déjà ce qu’il faut »</h3>
+      <p>Une seule relance, sans insister :</p>
+      <div class="say">« Très bien. Vous le suivez comment aujourd’hui ? »</div>
+      <p>S’il décrit un système qui marche, tu remercies et tu notes ses mots exacts. S’il laisse passer un mot-signal, tu rebondis dessus (étape 2).</p>
+
+      <h3><span class="num">6</span>Il accepte</h3>
+      <p>Tu réserves sans raccrocher dans le Calendly de Gerardo, avec son nom et son email confirmé à voix haute. Dans la note de réservation, tu écris ses mots exacts : Gerardo arrive préparé.</p>
+    </div>
+  </section>
+
+  <!-- ================= ENTRAINEMENT ================= -->
+  <section data-view="entrainement" hidden>
+    <div class="card" id="drillHome">
+      <h2>Entraînement</h2>
+      <p class="lead">Quatre exercices tirés de tes vrais appels. Fais-les dans l’ordre.</p>
+      <div class="drills" id="drillList"></div>
+    </div>
+    <div class="card" id="drillBox" hidden></div>
+  </section>
+
+  <!-- ================= APPELS ================= -->
+  <section data-view="appels" hidden>
+    <div class="card">
+      <h2>Mes 4 appels</h2>
+      <p class="lead">Aucun prospect n’a refusé après avoir lui-même décrit une difficulté. Les refus viennent d’appels où la difficulté n’a pas été mise en mots.</p>
+      <div class="calls">
+        <div class="call"><h3>Appel 1 : responsable formation, techniciens de maintenance <span class="tag rdv">Rendez-vous</span></h3>
+          <p class="res muted">Rendez-vous accepté du bout des lèvres (« ça m’est égal »).</p>
+          <ul><li><b>Bien :</b> bonne question pour la formation, prise de rendez-vous parfaite.</li>
+          <li><b>Faille manquée :</b> « c’est une entente, on en discute avec le chef de secteur ».</li>
+          <li><b>À retenir :</b> proposer l’échange seulement après qu’il a décrit une difficulté.</li></ul></div>
+        <div class="call"><h3>Appel 2 : encadrant des vérificateurs sécurité incendie <span class="tag ref">Refus</span></h3>
+          <p class="res muted">« On a déjà quelque chose en place, on est en train de revoir le programme. »</p>
+          <ul><li><b>Bien :</b> bonne question opérationnelle, bon réflexe « interne ou externe ? ».</li>
+          <li><b>Failles manquées :</b> « ça dépend des agences » et « on est en train de revoir tout le programme ».</li>
+          <li><b>À retenir :</b> ne pas répondre à sa place (« donc il n’y a pas forcément de problème », « du coup vous n’êtes pas intéressé »).</li></ul></div>
+        <div class="call"><h3>Appel 3 : responsable de techniciens antennes et réseaux <span class="tag ref">Refus</span></h3>
+          <p class="res muted">« On n’a pas besoin, on a ce qu’il faut en interne. »</p>
+          <ul><li><b>Bien :</b> calme quand elle a demandé « à quel sujet ? ».</li>
+          <li><b>Failles manquées :</b> « ils prennent leur envol » et « quasiment ».</li>
+          <li><b>À retenir :</b> l’ouverture avec le lien vers Carole évite le « à quel sujet ? ». Le bon mot est « transmission », pas « substitution ».</li></ul></div>
+        <div class="call"><h3>Appel 4 : responsable de techniciens portes automatiques <span class="tag ref">Refus</span></h3>
+          <p class="res muted">Refus avant même la question, ligne mauvaise.</p>
+          <ul><li><b>Bien :</b> calme et polie.</li>
+          <li><b>À retenir :</b> si la ligne est mauvaise, proposer de rappeler. À « pour quoi exactement ? », poser directement la question au lieu de répéter la présentation.</li></ul></div>
+      </div>
+      <h3>Ma grille pour les 5 prochains appels</h3>
+      <div class="tbl"><table>
+        <thead><tr><th>Après chaque appel, je coche</th><th>Oui / non</th></tr></thead>
+        <tbody>
+          <tr><td>J’ai ouvert avec le nom de famille et le lien vers le message de Carole</td><td></td></tr>
+          <tr><td>J’ai rebondi sur au moins un mot-signal</td><td></td></tr>
+          <tr><td>J’ai reformulé avec ses mots avant de proposer l’échange</td><td></td></tr>
+          <tr><td>J’ai proposé avec un choix (« début ou fin de semaine ? »), pas avec « ça vous intéresserait ? »</td><td></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <footer>Document interne Daylindo, à ne pas diffuser.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+function el(t,a={},h){const n=document.createElement(t);for(const k in a)n.setAttribute(k,a[k]);if(h!==undefined)n.innerHTML=h;return n;}
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+
+/* ---------- navigation ---------- */
+const VIEWS=["fiche","entrainement","appels"];
+function show(){
+  const h=location.hash.slice(1); const v=VIEWS.includes(h)?h:"fiche";
+  document.querySelectorAll("[data-view]").forEach(s=>s.hidden=s.dataset.view!==v);
+  document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-current",String(b.dataset.go===v)));
+  if(v==="entrainement"){ $("#drillHome").hidden=false; $("#drillBox").hidden=true; renderList(); }
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{ if(location.hash.slice(1)===b.dataset.go) show(); else location.hash=b.dataset.go; }));
+window.addEventListener("hashchange",show);
+
+/* ---------- data ---------- */
+const FAILLES=[
+ {who:"Responsable formation, maintenance", parts:["On leur fait passer des tests, ",{s:"c’est une entente"},", on en discute avec le chef de secteur."], r:"« Et quand il passe sur une machine qu’il n’a pas vue en formation, qui valide qu’il sait vraiment faire ? »", e:"La décision repose sur une discussion, pas sur une preuve."},
+ {who:"Encadrant vérificateurs incendie", parts:["En général c’est un mois, mais ",{s:"ça dépend des agences"},", ça dépend des vérificateurs."], r:"« Comment vous assurez-vous que le niveau est le même d’une agence à l’autre ? »", e:"Le niveau n’est pas homogène d’une agence à l’autre."},
+ {who:"Encadrant vérificateurs incendie", parts:["On a déjà quelque chose en place, ",{s:"on est en train de revoir tout le programme de formation"},", avec des partenaires."], r:"« Dans ce nouveau programme, comment allez-vous vérifier sur le terrain qu’il maîtrise vraiment ? »", e:"Un projet en cours : c’est le meilleur moment pour en parler."},
+ {who:"Responsable techniciens antennes", parts:["Ils sont formés en compagnonnage, en doublon au départ, ",{s:"et ensuite ils prennent leur envol"},"."], r:"« Ce moment où il prend son envol, qui le décide, et sur quoi ? »", e:"On ne sait pas qui décide qu’il est prêt, ni sur quelle base."},
+ {who:"Responsable techniciens antennes", parts:["Vous gardez une trace ? ",{s:"Quasiment"},". Bien sûr, on suit ça."], r:"« Quasiment ? Qu’est-ce qui n’est pas encore tracé ? »", e:"« Quasiment » veut dire que tout n’est pas tracé."},
+ {who:"Encadrant vérificateurs incendie", parts:["L’idée, c’est qu’il soit autonome. ",{s:"On reste disponible par téléphone, et s’il faut se déplacer, on se déplace"},"."], r:"« Ça arrive souvent ? Dans quelles situations ? »", e:"Les nouveaux ne sont pas complètement autonomes, et ça coûte du temps."}
+];
+const RELANCES=[
+ {who:"Responsable formation", line:"« On garde une trace des tests, et on suit leur évolution. »", o:["« OK, super. Est-ce que ça vous intéresserait d’échanger avec un expert ? »","« Et une fois sur le terrain, sur une machine précise, qui valide qu’il sait vraiment faire ? »","« Très bien, alors vous n’avez pas besoin de nous. »"], a:1, e:"Les tests se passent en formation. La faille est sur le terrain : creuse là."},
+ {who:"Encadrant vérificateurs incendie", line:"« Les vérificateurs travaillent tout seuls. Quand l’un est absent, c’est un autre qui y va. »", o:["« Donc quand le technicien est absent, il n’y a pas forcément de problème. »","« Et comment savez-vous que celui qui le remplace maîtrise cette installation-là ? »","« D’accord. Combien de temps un nouveau reste-t-il en binôme ? »"], a:1, e:"Tu rebondis sur ce qu’il vient de dire, sans répondre à sa place."},
+ {who:"Responsable techniciens antennes", line:"« Non, il travaille avec un binôme, un autre technicien. » (il n’a pas répondu à ta question)", o:["« Il est toujours en binôme ? D’accord. »","« Et le jour où il part sans binôme, c’est qui qui dit ok, il est prêt ? »","« Très bien, merci. »"], a:1, e:"Il a répondu à côté : repose la question autrement, avec des mots simples."},
+ {who:"Encadrant vérificateurs incendie", line:"« Non, on a déjà quelque chose en place. »", o:["« Bon, du coup vous n’êtes pas intéressé. »","« Très bien. Vous le suivez comment aujourd’hui ? »","« Pourtant, ça vaudrait vraiment le coup. »"], a:1, e:"Une seule relance ouverte, sans insister. S’il décrit un système qui marche, tu remercies et tu notes."}
+];
+const PROPOS=[
+ {c:"Le prospect vient de dire que la décision « se fait par entente avec le chef de secteur ». Quelle proposition choisis-tu ?", o:["« Est-ce que ça vous intéresserait d’échanger 20 minutes avec un expert ? »","« Si je comprends bien, la décision qu’il est prêt se fait par discussion avec le chef de secteur. C’est exactement le sujet sur lequel nous travaillons. Ça vaudrait la peine d’en parler 20 minutes avec un expert de notre équipe. Plutôt en début ou en fin de semaine ? »","« On a une plateforme qui règle ça, je vous propose une démo. »"], a:1, e:"Ses mots, le lien avec Daylindo, puis un choix simple."},
+ {c:"Le prospect a décrit un système bien rodé, sans aucune difficulté. Que fais-tu ?", o:["Je propose quand même l’échange, on ne sait jamais","Je remercie, je note ses mots exacts, et je raccroche poliment","J’insiste en expliquant ce que fait Daylindo"], a:1, e:"Pas de difficulté, pas d’échange : un rendez-vous sans besoin a de grandes chances de ne pas avoir lieu."},
+ {c:"Il a dit « on est en train de revoir tout le programme », mais refuse l’échange. Que notes-tu ?", o:["Refus, sans détail","Refus avec ses mots exacts, et la refonte en cours du programme avec des partenaires : à recontacter","Rien, ce n’est pas intéressant"], a:1, e:"Un projet en cours est un déclencheur : ce contact est à recontacter plus tard."}
+];
+const OUVERT=[
+ {c:"Quelle ouverture choisis-tu ?", o:["« Oui, bonjour Richard, Carla de Daylindo. Je me permets de vous appeler parce qu’on aide les entreprises à organiser la transmission des savoir-faire… »","« Bonjour Monsieur Martel, Carla de Daylindo. Ma collègue Carole Laffont vous a écrit sur LinkedIn au sujet de vos techniciens terrain. Je vous appelle pour une seule question. »","« Bonjour, vous avez bien reçu le message de Carole ? »"], a:1, e:"Le nom de famille, le lien avec Carole, une seule question : il sait tout de suite pourquoi tu l’appelles."},
+ {c:"Le prospect demande : « Vous m’appelez pour quoi exactement ? »", o:["Je répète ma phrase de présentation","« C’est au sujet de vos techniciens : comment validez-vous qu’un technicien est prêt à intervenir seul ? »","« C’est pour vous présenter Daylindo. »"], a:1, e:"Va droit à la question : c’est elle qui accroche."},
+ {c:"Le prospect dit qu’il t’entend mal.", o:["Je continue en parlant plus fort","« La ligne est mauvaise, je vous rappelle dans deux minutes ? »","Je raccroche sans rien dire"], a:1, e:"Un prospect qui entend mal décroche vite : rappelle."}
+];
+const DRILLS=[
+ {id:"failles", n:"Repère la faille", s:"Touche le mot-signal dans la phrase du prospect"},
+ {id:"relances", n:"Choisis la relance", s:"Rebondis sur ce qu’il vient de dire"},
+ {id:"propos", n:"Propose l’échange", s:"Reformuler, faire le lien, proposer un choix"},
+ {id:"ouvert", n:"L’ouverture", s:"Les premières secondes de l’appel"}
+];
+const store={get(){try{return JSON.parse(localStorage.getItem("coaching-carla")||"{}")}catch(e){return{}}},set(v){try{localStorage.setItem("coaching-carla",JSON.stringify(v))}catch(e){}}};
+let done=store.get();
+
+function renderList(){
+  const l=$("#drillList"); l.innerHTML="";
+  DRILLS.forEach((d,i)=>{const b=el("button",{type:"button",class:"drill"},`<b>${i+1}. ${d.n}</b><small>${d.s}</small>${done[d.id]?`<div class="done">✓ Réussi</div>`:""}`);b.addEventListener("click",()=>start(d.id));l.appendChild(b);});
+}
+function box(){ $("#drillHome").hidden=true; const b=$("#drillBox"); b.hidden=false; b.innerHTML=""; window.scrollTo(0,0); return b; }
+function bar(i,n){return `<div class="meta"><span>${i+1} / ${n}</span></div><div class="progress"><span style="width:${(i/n)*100}%"></span></div>`;}
+function finish(b,id,score,n){
+  const pass=score/n>=0.8; if(pass){done[id]=true;store.set(done);}
+  b.innerHTML=`<div class="end"><div class="big">${score} / ${n}</div><p>${pass?"Réussi. Passe à l’exercice suivant.":"Relis la fiche réflexe et recommence."}</p></div>`;
+  const back=el("button",{type:"button",class:"btn primary"},"Retour aux exercices"); back.addEventListener("click",()=>show());
+  const again=el("button",{type:"button",class:"btn",style:"margin-left:8px"},"Recommencer"); again.addEventListener("click",()=>start(id));
+  b.querySelector(".end").append(back,again);
+}
+function nextBtn(fb,last,fn){const n=el("button",{type:"button",class:"btn primary"},last?"Voir mon score":"Suivant");n.addEventListener("click",fn);fb.appendChild(el("div"));fb.lastChild.appendChild(n);n.focus();}
+
+function start(id){
+  const b=box();
+  if(id==="failles"){
+    const list=shuffle(FAILLES); let i=0,score=0;
+    const draw=()=>{
+      if(i>=list.length) return finish(b,id,score,list.length);
+      const it=list[i];
+      b.innerHTML=`<h2>Repère la faille</h2><p class="lead">Touche le passage qui doit te faire réagir.</p>${bar(i,list.length)}`;
+      const sc=el("div",{class:"scene"},`<div class="who">${it.who}</div>`); const line=el("div",{class:"line"});
+      const fb=el("div",{class:"feedback"});
+      const segs=[];
+      it.parts.forEach(p=>{
+        const isSig=typeof p==="object"; const txt=isSig?p.s:p;
+        if(!isSig && !/[A-Za-zÀ-ÿ]/.test(txt)){ line.appendChild(document.createTextNode(txt)); return; }
+        const s=el("button",{type:"button",class:"seg"},txt); segs.push([s,isSig]);
+        s.addEventListener("click",()=>{
+          segs.forEach(([x])=>x.disabled=true);
+          if(isSig) score++;
+          segs.forEach(([x,sig])=>{ if(sig) x.classList.add("right"); });
+          if(!isSig) s.classList.add("wrong");
+          fb.className="feedback show "+(isSig?"ok":"ko");
+          fb.innerHTML=`<b>${isSig?"Bien vu.":"Pas celui-là."}</b>${it.e}<div class="say" style="margin-top:10px">${it.r}</div>`;
+          nextBtn(fb,i+1>=list.length,()=>{i++;draw();});
+        });
+        line.appendChild(s);
+      });
+      sc.appendChild(line); b.append(sc,fb);
+    }; draw(); return;
+  }
+  const sets={relances:{items:RELANCES,t:"Choisis la relance",l:"Que réponds-tu ?",scene:true},propos:{items:PROPOS,t:"Propose l’échange",l:"Choisis la meilleure option."},ouvert:{items:OUVERT,t:"L’ouverture",l:"Les premières secondes comptent."}};
+  const cfg=sets[id]; const list=shuffle(cfg.items); let i=0,score=0;
+  const draw=()=>{
+    if(i>=list.length) return finish(b,id,score,list.length);
+    const it=list[i];
+    b.innerHTML=`<h2>${cfg.t}</h2><p class="lead">${cfg.l}</p>${bar(i,list.length)}`;
+    if(cfg.scene) b.appendChild(el("div",{class:"scene"},`<div class="who">${it.who}</div><div class="line">${it.line}</div>`));
+    else b.appendChild(el("p",{class:"q"},it.c));
+    const opts=el("div",{class:"opts"}), fb=el("div",{class:"feedback"});
+    const o=shuffle(it.o.map((t,k)=>({t,k})));
+    o.forEach(({t,k})=>{const x=el("button",{type:"button",class:"opt"},t);x.addEventListener("click",()=>{
+      opts.querySelectorAll(".opt").forEach(z=>z.disabled=true);
+      const right=k===it.a; if(right)score++;
+      x.classList.add(right?"right":"wrong");
+      opts.querySelectorAll(".opt")[o.findIndex(z=>z.k===it.a)].classList.add("right");
+      fb.className="feedback show "+(right?"ok":"ko"); fb.innerHTML=`<b>${right?"Exactement.":"Pas tout à fait."}</b>${it.e}`;
+      nextBtn(fb,i+1>=list.length,()=>{i++;draw();});
+    });opts.appendChild(x);});
+    b.append(opts,fb);
+  }; draw();
+}
+show();
+</script>
+</body>
+</html>
